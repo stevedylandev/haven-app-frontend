@@ -1,6 +1,12 @@
-import React from 'react';
-import { Send } from 'lucide-react';
-import { getStoredClassifications, clearClassifications } from '../utils/storage';
+import React, { useState } from "react";
+import { Send } from "lucide-react";
+import {
+  getStoredClassifications,
+  clearClassifications,
+} from "../utils/storage";
+import { useWalletConnection } from "../hooks/useWalletConnection";
+import { WalletMultiButton } from "@solana/wallet-adapter-react-ui";
+import { useWallet } from "@solana/wallet-adapter-react";
 
 interface SubmitButtonProps {
   classificationsCount: number;
@@ -8,38 +14,73 @@ interface SubmitButtonProps {
   onSubmit: () => void;
 }
 
-export function SubmitButton({ classificationsCount, isShaken, onSubmit }: SubmitButtonProps) {
-  const shouldShow = classificationsCount >= 5 || isShaken;
+export function SubmitButton({
+  classificationsCount,
+  isShaken,
+  onSubmit,
+}: SubmitButtonProps) {
+  const { isConnected, makeTestTransaction } = useWalletConnection();
+  const { disconnect } = useWallet();
+  const [isLoading, setIsLoading] = useState(false);
+  const shouldShow = classificationsCount >= 25 || isShaken;
 
   if (!shouldShow) return null;
 
+  if (!isConnected) {
+    return (
+      <div className="fixed bottom-16 bg-black/80 backdrop-blur-sm p-4 rounded-3xl left-1/2 -translate-x-1/2 flex flex-col items-center gap-2">
+        <p className="text-white/80 text-lg">
+          Connect wallet to submit classifications
+        </p>
+        <WalletMultiButton />
+      </div>
+    );
+  }
+
   const handleSubmit = async () => {
+    setIsLoading(true);
     const storage = getStoredClassifications();
 
     try {
-      // Here you would typically send the data to your backend
-      console.log('Submitting classifications:', storage.classifications);
+      // Make a test transaction
+      await makeTestTransaction();
+      console.log("Submitting classifications:", storage.classifications);
 
       // Clear the stored classifications after successful submission
       clearClassifications();
 
-      alert('Classifications submitted successfully!');
+      // Disconnect wallet after successful submission
+      await disconnect();
+      alert(
+        "Classifications submitted successfully! Please reconnect wallet for next batch."
+      );
       onSubmit();
     } catch (error) {
-      console.error('Failed to submit classifications:', error);
-      alert('Failed to submit classifications. Please try again.');
+      console.error("Failed to submit classifications:", error);
+      alert("Failed to submit classifications. Please try again.");
+    } finally {
+      setIsLoading(false);
     }
   };
 
   return (
     <button
       onClick={handleSubmit}
-      className="fixed bottom-16 left-1/2 -translate-x-1/2 bg-gradient-to-br from-purple-900/50 to-black border border-purple-800/50 hover:bg-black/70
+      disabled={isLoading}
+      className={`fixed bottom-16 left-1/2 -translate-x-1/2 bg-gradient-to-br from-purple-900/50 to-black border border-purple-800/50 hover:bg-black/70
                  text-white px-6 py-3 rounded-full flex items-center gap-2 shadow-lg
-                 transition-all transform hover:scale-105 active:scale-95"
+                 transition-all transform hover:scale-105 active:scale-95 ${
+                   isLoading ? "opacity-50 cursor-not-allowed" : ""
+                 }`}
     >
-      <Send className="w-5 h-5" />
-      <span>Submit Classifications</span>
+      {isLoading ? (
+        <span>Submitting...</span>
+      ) : (
+        <>
+          <Send className="w-5 h-5" />
+          <span>Submit Classifications ({classificationsCount}/25)</span>
+        </>
+      )}
     </button>
   );
 }

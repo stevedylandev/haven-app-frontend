@@ -1,6 +1,6 @@
-import { useState, useEffect } from 'react';
-import { Content } from '../types';
-import { fetchVideoList } from '../utils/ipfs';
+import { useState, useEffect } from "react";
+import { Content } from "../types";
+import { fetchVideoList } from "../utils/ipfs";
 
 export function useVideoContent() {
   const [content, setContent] = useState<Content[]>([]);
@@ -13,7 +13,7 @@ export function useVideoContent() {
         const videos = await fetchVideoList();
         setContent(videos);
       } catch (err) {
-        setError('Failed to load videos');
+        setError("Failed to load videos");
       } finally {
         setLoading(false);
       }

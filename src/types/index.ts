@@ -1,7 +1,7 @@
 export interface Content {
   id: string;
   url: string;
-  type: 'image' | 'video';
+  type: "image" | "video";
   pointsValue?: number;
   leftActionId?: string;
   rightActionId?: string;
