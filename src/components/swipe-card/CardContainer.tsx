@@ -1,7 +1,8 @@
-import { Content } from "../../types";
+import { Content, UserReward } from "../../types";
 import { MediaDisplay } from "./MediaDisplay";
 import { BettingIndicator } from "./BettingIndicator";
 import { FloatingParticles } from "./FloatingParticles";
+import { InfoOverlay } from "./InfoOverlay";
 import { Card } from "@/components/ui/card";
 
 interface CardContainerProps {
@@ -15,6 +16,7 @@ interface CardContainerProps {
   onExpand: () => void;
   videoRef: React.RefObject<HTMLVideoElement>;
   onVideoLoad: () => void;
+  reward: UserReward;
   handlers: {
     onTouchStart: (e: React.TouchEvent | React.MouseEvent) => void;
     onTouchMove: (e: React.TouchEvent | React.MouseEvent) => void;
@@ -38,6 +40,7 @@ export const CardContainer: React.FC<CardContainerProps> = ({
   onExpand,
   videoRef,
   onVideoLoad,
+  reward,
   handlers,
 }) => {
   return (
@@ -46,7 +49,7 @@ export const CardContainer: React.FC<CardContainerProps> = ({
         isHolding ? "ring-2 ring-yellow-500/70" : "ring-1 ring-white/10"
       } transition-all duration-300 ease-out ${
         isExpanded ? "cursor-zoom-out" : "cursor-grab"
-      } overflow-hidden shadow-xl before:absolute before:inset-0 before:bg-gradient-to-t before:from-black/80 before:via-transparent before:to-black/30 before:z-10`}
+      } overflow-hidden shadow-[0_0_20px_rgba(255,255,255,0.07),0_0_40px_rgba(255,255,255,0.05)] before:absolute before:inset-0 before:bg-gradient-to-t before:from-black/80 before:via-transparent before:to-black/30 before:z-10`}
       style={{
         transform: isExpanded ? "none" : transform,
         opacity,
@@ -64,6 +67,7 @@ export const CardContainer: React.FC<CardContainerProps> = ({
         onVideoLoad={onVideoLoad}
       />
 
+      <InfoOverlay content={content} isExpanded={isExpanded} reward={reward} />
       <BettingIndicator betAmount={betAmount} isHolding={isHolding} />
       <FloatingParticles />
     </Card>

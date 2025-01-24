@@ -120,7 +120,7 @@ export const BettingControls: React.FC<BettingControlsProps> = ({
           onMouseLeave={stopIncrementing}
           onTouchStart={startIncrementing}
           onTouchEnd={stopIncrementing}
-          className={`relative bg-gradient-to-bl from-yellow-500/5 via-transparent to-yellow-500/5 backdrop-blur-sm border border-white/10 text-white font-bold p-2 rounded-full focus:outline-none shadow-lg transition-all duration-300 hover:bg-yellow-500/40 ${
+          className={`relative bg-transparent from-yellow-500/5 via-transparent to-yellow-500/5 backdrop-blur-sm border border-white/10 text-white font-bold p-2 rounded-full focus:outline-none shadow-lg transition-all duration-300 hover:bg-yellow-500/40 ${
             isHolding
               ? "scale-110 shadow-xl ring-2 ring-yellow-500/50"
               : "hover:scale-105 active:scale-95"
@@ -137,14 +137,14 @@ export const BettingControls: React.FC<BettingControlsProps> = ({
       </div>
 
       {/* Bet Amount Range Indicator (Progress Bar) */}
-      <div className="mt-4 backdrop-blur-md bg-black/30 rounded-full h-3 relative overflow-hidden border border-white/10">
+      <div className="mt-4  rounded-full h-3 relative overflow-hidden border border-white/10">
         <div
           className={`bg-gradient-to-r from-red-500/80 via-yellow-500/80 to-yellow-500/80 rounded-full h-full transition-all duration-150 ${
             isHolding ? "animate-pulse" : ""
           }`}
           style={{ width: `${(betAmount / reward.points) * 100}%` }}
         />
-        <div className="absolute inset-0 bg-gradient-to-b from-white/20 to-transparent pointer-events-none" />
+        {/* <div className="absolute inset-0 bg-gradient-to-b from-white/20 to-transparent pointer-events-none" /> */}
         <div className="flex justify-between px-2 mt-2">
           <span className="text-white/70 text-xs font-medium">0</span>
           <span className="text-white/70 text-xs font-medium">

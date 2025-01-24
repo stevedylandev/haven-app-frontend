@@ -1,6 +1,6 @@
-import { Classification, ClassificationStorage } from '../types';
+import { ClassificationStorage } from "../types";
 
-const STORAGE_KEY = 'classification_data';
+const STORAGE_KEY = "classification_data";
 
 export function getStoredClassifications(): ClassificationStorage {
   const stored = localStorage.getItem(STORAGE_KEY);
@@ -10,7 +10,10 @@ export function getStoredClassifications(): ClassificationStorage {
   return JSON.parse(stored);
 }
 
-export function storeClassification(contentId: string, selectedActionId: string): void {
+export function storeClassification(
+  contentId: string,
+  selectedActionId: string
+): void {
   const storage = getStoredClassifications();
   storage.classifications.push({
     contentId,

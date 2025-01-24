@@ -105,6 +105,7 @@ export const SwipeCard = React.forwardRef<
         videoRef={videoRef}
         onVideoLoad={handleVideoLoad}
         handlers={enhancedHandlers}
+        reward={reward}
       />
 
       <BettingControls
