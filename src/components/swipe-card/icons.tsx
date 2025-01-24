@@ -1,11 +1,18 @@
 import React from "react";
 
-export const MaximizeIcon = ({ fill }: { fill: string }) => (
+export const MaximizeIcon = ({
+  fill,
+  className,
+}: {
+  fill: string;
+  className?: string;
+}) => (
   <svg
     xmlns="http://www.w3.org/2000/svg"
     viewBox="0 0 24 24"
     width="24"
     height="24"
+    className={className}
   >
     <path fill="none" stroke={fill} strokeWidth="2" d="M3 3h18v18H3z" />
     <path
@@ -16,12 +23,19 @@ export const MaximizeIcon = ({ fill }: { fill: string }) => (
   </svg>
 );
 
-export const MinimizeIcon = ({ fill }: { fill: string }) => (
+export const MinimizeIcon = ({
+  fill,
+  className,
+}: {
+  fill: string;
+  className?: string;
+}) => (
   <svg
     xmlns="http://www.w3.org/2000/svg"
     viewBox="0 0 24 24"
     width="24"
     height="24"
+    className={className}
   >
     <path fill="none" stroke={fill} strokeWidth="2" d="M3 3h18v18H3z" />
     <path stroke={fill} strokeWidth="2" d="M5 12h14" />

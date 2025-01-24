@@ -9,6 +9,7 @@ export default defineConfig({
   },
   resolve: {
     alias: {
+      "@": "/src",
       buffer: "buffer",
     },
   },

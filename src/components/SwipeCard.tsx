@@ -89,8 +89,8 @@ export const SwipeCard = React.forwardRef<
       ref={cardRef}
       className={`transition-all duration-300 ${
         isExpanded
-          ? "fixed left-0 top-4 z-50 m-0 p-0"
-          : "absolute left-1/2 top-0 -translate-x-1/2 w-full max-w-sm aspect-[9/16]"
+          ? "fixed left-0 top-6 z-50 m-0 p-0"
+          : "absolute left-1/2 top-4 -translate-x-1/2 w-full max-w-sm aspect-[9/16]"
       } ${disabled ? "opacity-50 cursor-not-allowed" : ""}`}
     >
       <CardContainer

@@ -1,8 +1,8 @@
-import React from "react";
 import { Content } from "../../types";
 import { MediaDisplay } from "./MediaDisplay";
 import { BettingIndicator } from "./BettingIndicator";
 import { FloatingParticles } from "./FloatingParticles";
+import { Card } from "@/components/ui/card";
 
 interface CardContainerProps {
   content: Content;
@@ -41,13 +41,18 @@ export const CardContainer: React.FC<CardContainerProps> = ({
   handlers,
 }) => {
   return (
-    <div
-      className={`absolute inset-0 bg-black border-2 ${
-        isHolding ? "border-yellow-500" : "border-red-500"
-      } rounded-2xl transition-all duration-200 ${
+    <Card
+      className={`absolute inset-0 border-none rounded-xl backdrop-blur-md bg-black/30 ${
+        isHolding ? "ring-2 ring-yellow-500/70" : "ring-1 ring-white/10"
+      } transition-all duration-300 ease-out ${
         isExpanded ? "cursor-zoom-out" : "cursor-grab"
-      }`}
-      style={{ transform: isExpanded ? "none" : transform, opacity }}
+      } overflow-hidden shadow-xl before:absolute before:inset-0 before:bg-gradient-to-t before:from-black/80 before:via-transparent before:to-black/30 before:z-10`}
+      style={{
+        transform: isExpanded ? "none" : transform,
+        opacity,
+        background:
+          "linear-gradient(135deg, rgba(255,255,255,0.1), rgba(255,255,255,0.05))",
+      }}
       {...handlers}
     >
       <MediaDisplay
@@ -61,6 +66,6 @@ export const CardContainer: React.FC<CardContainerProps> = ({
 
       <BettingIndicator betAmount={betAmount} isHolding={isHolding} />
       <FloatingParticles />
-    </div>
+    </Card>
   );
 };

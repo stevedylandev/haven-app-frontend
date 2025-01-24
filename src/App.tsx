@@ -211,7 +211,7 @@ function AppContent() {
       </div>
 
       <div
-        className="fixed bottom-4 left-0 right-0 text-center text-white/60 text-sm"
+        className="fixed bottom-1 left-0 right-0 text-center text-white/60 text-sm"
         aria-hidden="true"
       >
         Swipe left or right to classify the action

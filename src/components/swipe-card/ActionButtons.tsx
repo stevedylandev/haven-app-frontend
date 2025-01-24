@@ -1,6 +1,7 @@
-import React from "react";
+import { ChevronLeft, ChevronRight } from "lucide-react";
 import { ActionChoice } from "../../types";
-import { LeftArrowIcon, RightArrowIcon } from "./icons";
+
+import { Button } from "@/components/ui/button";
 
 interface ActionButtonsProps {
   leftAction: ActionChoice;
@@ -18,46 +19,41 @@ export const ActionButtons: React.FC<ActionButtonsProps> = ({
   disabled,
 }) => {
   return (
-    <div className="absolute bottom-4 left-0 right-0 px-4 flex justify-between items-center">
+    <div className="absolute bottom-0 pb-4 left-0 right-0 px-4 flex justify-between  bg-gradient-to-t from-black/20 to-transparent items-center">
       {/* Left Action Button */}
-      <button
+      <Button
         onClick={onLeftClick}
-        className={`relative bg-gradient-to-br from-red-700 to-red-500 hover:from-red-500 hover:to-red-700 text-white font-bold py-3 px-6 rounded-full focus:outline-none shadow-md overflow-hidden transition-transform active:scale-95 ${
-          disabled ? "opacity-50 cursor-not-allowed" : ""
-        }`}
         disabled={disabled}
+        size="lg"
+        variant="ghost"
+        className="relative bg-gradient-to-br rounded-full from-red-500/5 via-transparent to-red-500/40 border border-white/10 backdrop-blur-sm hover:bg-red-500/40 text-white hover:text-white font-medium tracking-wide shadow-md overflow-hidden transition-all duration-300"
       >
-        <LeftArrowIcon
-          fill="currentColor"
-          className="absolute left-3 top-1/2 transform -translate-y-1/2 w-6 h-6"
-        />
-        <span className="ml-3">{leftAction.label}</span>
-        <span className="absolute top-0 left-0 w-full h-full rounded-full pointer-events-none opacity-0 hover:opacity-10 bg-white"></span>
+        <ChevronLeft className="absolute left-3 top-1/2 transform -translate-y-1/2 w-6 h-6" />
+        <span className="ml-8">{leftAction.label}</span>
+        <span className="absolute inset-0 rounded-full pointer-events-none opacity-0 hover:opacity-10 bg-white" />
         <span
-          className="absolute top-0 left-0 w-full h-full bg-white transform scale-0 rounded-full pointer-events-none duration-500 ease-out"
+          className="absolute inset-0 bg-white transform scale-0 rounded-full pointer-events-none duration-500 ease-out"
           style={{ animation: "pulse-glow 1s ease-out infinite" }}
-        ></span>
-      </button>
+        />
+      </Button>
 
       {/* Right Action Button */}
-      <button
+      <Button
         onClick={onRightClick}
-        className={`relative bg-gradient-to-br from-yellow-500 to-yellow-700 hover:from-yellow-700 hover:to-yellow-500 text-red-900 font-bold py-3 px-6 rounded-full focus:outline-none shadow-md overflow-hidden transition-transform active:scale-95 ${
-          disabled ? "opacity-50 cursor-not-allowed" : ""
-        }`}
         disabled={disabled}
+        size="lg"
+        variant="ghost"
+        className="relative bg-gradient-to-bl rounded-full from-yellow-500/5 via-transparent to-yellow-500/40 border border-white/10 backdrop-blur-sm hover:bg-yellow-500/40 text-white hover:text-white font-medium tracking-wide shadow-md overflow-hidden transition-all duration-300
+        "
       >
-        <span className="mr-3">{rightAction.label}</span>
-        <RightArrowIcon
-          fill="currentColor"
-          className="absolute right-3 top-1/2 transform -translate-y-1/2 w-6 h-6"
-        />
-        <span className="absolute top-0 left-0 w-full h-full rounded-full pointer-events-none opacity-0 hover:opacity-10 bg-white"></span>
+        <span className="mr-8">{rightAction.label}</span>
+        <ChevronRight className="absolute right-3 top-1/2 transform -translate-y-1/2 w-6 h-6" />
+        <span className="absolute inset-0 rounded-full pointer-events-none opacity-0 hover:opacity-10 bg-white" />
         <span
-          className="absolute top-0 left-0 w-full h-full bg-white transform scale-0 rounded-full pointer-events-none duration-500 ease-out"
+          className="absolute inset-0 bg-white transform scale-0 rounded-full pointer-events-none duration-500 ease-out"
           style={{ animation: "pulse-glow 1s ease-out infinite" }}
-        ></span>
-      </button>
+        />
+      </Button>
     </div>
   );
 };

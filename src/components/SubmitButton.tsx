@@ -1,5 +1,5 @@
-import React, { useState } from "react";
-import { Send } from "lucide-react";
+import { useState } from "react";
+import { Send, Loader2 } from "lucide-react";
 import {
   getStoredClassifications,
   clearClassifications,
@@ -7,6 +7,7 @@ import {
 import { useWalletConnection } from "../hooks/useWalletConnection";
 import { WalletMultiButton } from "@solana/wallet-adapter-react-ui";
 import { useWallet } from "@solana/wallet-adapter-react";
+import { Button } from "@/components/ui/button";
 
 interface SubmitButtonProps {
   classificationsCount: number;
@@ -64,23 +65,26 @@ export function SubmitButton({
   };
 
   return (
-    <button
-      onClick={handleSubmit}
-      disabled={isLoading}
-      className={`fixed bottom-16 left-1/2 -translate-x-1/2 bg-gradient-to-br from-purple-900/50 to-black border border-purple-800/50 hover:bg-black/70
-                 text-white px-6 py-3 rounded-full flex items-center gap-2 shadow-lg
-                 transition-all transform hover:scale-105 active:scale-95 ${
-                   isLoading ? "opacity-50 cursor-not-allowed" : ""
-                 }`}
-    >
-      {isLoading ? (
-        <span>Submitting...</span>
-      ) : (
-        <>
-          <Send className="w-5 h-5" />
-          <span>Submit Classifications ({classificationsCount}/25)</span>
-        </>
-      )}
-    </button>
+    <div className="fixed bottom-16 left-1/2 -translate-x-1/2">
+      <Button
+        onClick={handleSubmit}
+        disabled={isLoading}
+        size="lg"
+        className="bg-gradient-to-br from-purple-900/50 to-black border border-purple-800/50 hover:bg-black/70
+                  shadow-lg transition-all transform hover:scale-105 active:scale-95 gap-2"
+      >
+        {isLoading ? (
+          <>
+            <Loader2 className="w-5 h-5 animate-spin" />
+            <span>Submitting...</span>
+          </>
+        ) : (
+          <>
+            <Send className="w-5 h-5" />
+            <span>Submit Classifications ({classificationsCount}/25)</span>
+          </>
+        )}
+      </Button>
+    </div>
   );
 }

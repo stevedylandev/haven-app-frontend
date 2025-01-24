@@ -23,12 +23,12 @@ export const MediaDisplay: React.FC<MediaDisplayProps> = ({
     <>
       <button
         onClick={onExpand}
-        className="absolute top-4 right-4 z-50 bg-gradient-to-br from-red-500 to-yellow-500 hover:bg-yellow-600 text-white font-bold py-2 px-4 rounded-full shadow-md"
+        className="absolute top-4 right-4 z-50 backdrop-blur-md bg-white/10 hover:bg-white/20 text-white p-2.5 rounded-full shadow-lg transition-all duration-300 ease-out ring-1 ring-white/20 hover:ring-white/40 hover:scale-110"
       >
         {isExpanded ? (
-          <MinimizeIcon fill="currentColor" />
+          <MinimizeIcon fill="currentColor" className="w-5 h-5" />
         ) : (
-          <MaximizeIcon fill="currentColor" />
+          <MaximizeIcon fill="currentColor" className="w-5 h-5" />
         )}
       </button>
 
@@ -36,20 +36,20 @@ export const MediaDisplay: React.FC<MediaDisplayProps> = ({
         <img
           src={content.url}
           alt="Content to classify"
-          className="w-full h-full object-contain rounded-2xl"
+          className="w-full h-full object-cover transition-transform duration-300 ease-out hover:scale-105"
           draggable={false}
         />
       ) : (
         <>
           {!isVideoLoaded && (
-            <div className="w-full h-full bg-gray-900 flex items-center justify-center animate-pulse rounded-2xl">
-              {/* Loading spinner or placeholder */}
+            <div className="w-full h-full bg-gradient-to-br from-gray-900 to-black flex items-center justify-center">
+              <div className="w-12 h-12 rounded-full border-4 border-white/10 border-t-white animate-spin" />
             </div>
           )}
           <video
             ref={videoRef}
             src={content.url}
-            className="w-full h-full object-contain rounded-2xl"
+            className="w-full h-full object-cover transition-transform duration-300 ease-out hover:scale-105"
             autoPlay
             loop
             muted
