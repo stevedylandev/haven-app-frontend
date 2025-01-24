@@ -55,7 +55,10 @@ export function useOptimizedCallbacks({
           setShowWallet(true);
         }
 
-        toast.success("Classification saved!");
+        toast.success("Classification saved!", {
+          duration: 600,
+          position: "bottom-right",
+        });
       } catch (error) {
         toast.error("Failed to store classification");
         console.error("Classification error:", error);
