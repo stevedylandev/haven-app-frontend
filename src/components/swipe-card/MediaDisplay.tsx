@@ -1,6 +1,6 @@
 import React from "react";
 import { Content } from "../../types";
-import { MaximizeIcon, MinimizeIcon } from "./icons";
+// import { MaximizeIcon, MinimizeIcon } from "./icons";
 
 interface MediaDisplayProps {
   content: Content;
@@ -13,15 +13,15 @@ interface MediaDisplayProps {
 
 export const MediaDisplay: React.FC<MediaDisplayProps> = ({
   content,
-  isExpanded,
+  // isExpanded,
   isVideoLoaded,
-  onExpand,
+  // onExpand,
   videoRef,
   onVideoLoad,
 }) => {
   return (
     <>
-      <button
+      {/* <button
         onClick={onExpand}
         className="absolute top-4 right-4 z-50 backdrop-blur-md bg-white/10 hover:bg-white/20 text-white p-2.5 rounded-full shadow-lg transition-all duration-300 ease-out ring-1 ring-white/20 hover:ring-white/40 hover:scale-110"
       >
@@ -30,7 +30,7 @@ export const MediaDisplay: React.FC<MediaDisplayProps> = ({
         ) : (
           <MaximizeIcon fill="currentColor" className="w-5 h-5" />
         )}
-      </button>
+      </button> */}
 
       {content.type === "image" ? (
         <img

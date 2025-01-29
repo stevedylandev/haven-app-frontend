@@ -5,9 +5,8 @@ import {
   clearClassifications,
 } from "../utils/storage";
 import { useWalletConnection } from "../hooks/useWalletConnection";
-import { WalletMultiButton } from "@solana/wallet-adapter-react-ui";
-import { useWallet } from "@solana/wallet-adapter-react";
 import { Button } from "@/components/ui/button";
+import { usePrivy } from "@privy-io/react-auth";
 
 interface SubmitButtonProps {
   classificationsCount: number;
@@ -20,8 +19,8 @@ export function SubmitButton({
   isShaken,
   onSubmit,
 }: SubmitButtonProps) {
-  const { isConnected, makeTestTransaction } = useWalletConnection();
-  const { disconnect } = useWallet();
+  const { isConnected, logout } = useWalletConnection();
+  const { login } = usePrivy();
   const [isLoading, setIsLoading] = useState(false);
   const shouldShow = classificationsCount >= 25 || isShaken;
 
@@ -33,7 +32,12 @@ export function SubmitButton({
         <p className="text-white/80 text-lg">
           Connect wallet to submit classifications
         </p>
-        <WalletMultiButton />
+        <Button
+          onClick={login}
+          className="bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 px-4 rounded-lg"
+        >
+          Connect Wallet
+        </Button>
       </div>
     );
   }
@@ -43,15 +47,14 @@ export function SubmitButton({
     const storage = getStoredClassifications();
 
     try {
-      // Make a test transaction
-      await makeTestTransaction();
+      // Log the classifications being submitted
       console.log("Submitting classifications:", storage.classifications);
 
       // Clear the stored classifications after successful submission
       clearClassifications();
 
-      // Disconnect wallet after successful submission
-      await disconnect();
+      // Disconnect after successful submission
+      await logout();
       alert(
         "Classifications submitted successfully! Please reconnect wallet for next batch."
       );

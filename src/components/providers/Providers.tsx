@@ -1,13 +1,8 @@
-import {
-  ConnectionProvider,
-  WalletProvider,
-} from "@solana/wallet-adapter-react";
-import { WalletModalProvider } from "@solana/wallet-adapter-react-ui";
 import { ReactNode } from "react";
+import { PrivyProvider } from "@privy-io/react-auth";
 import { ErrorBoundary } from "../common/ErrorBoundary";
 import { ToastProvider } from "./ToastProvider";
 import { AudiusProvider } from "../../context/AudiusContext";
-import { endpoint, wallets } from "../../config/wallet";
 
 interface ProvidersProps {
   children: ReactNode;
@@ -16,16 +11,21 @@ interface ProvidersProps {
 export const Providers = ({ children }: ProvidersProps) => {
   return (
     <ErrorBoundary>
-      <ConnectionProvider endpoint={endpoint}>
-        <WalletProvider wallets={wallets} autoConnect>
-          <WalletModalProvider>
-            <AudiusProvider>
-              <ToastProvider />
-              {children}
-            </AudiusProvider>
-          </WalletModalProvider>
-        </WalletProvider>
-      </ConnectionProvider>
+      <PrivyProvider
+        appId={"cm6b71m7h006r6afi6tsaxsht"}
+        config={{
+          loginMethods: ["email", "wallet"],
+          appearance: {
+            theme: "dark",
+            accentColor: "#676FFF",
+          },
+        }}
+      >
+        <AudiusProvider>
+          <ToastProvider />
+          {children}
+        </AudiusProvider>
+      </PrivyProvider>
     </ErrorBoundary>
   );
 };

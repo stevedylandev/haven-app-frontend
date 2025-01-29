@@ -1,7 +1,6 @@
 import { useRef, useState, useMemo, useEffect, Suspense } from "react";
-import { useWallet } from "@solana/wallet-adapter-react";
-import { WalletMultiButton } from "@solana/wallet-adapter-react-ui";
 import { usePrivy } from "@privy-io/react-auth";
+import { Menu } from "lucide-react";
 import { Providers } from "./components/providers/Providers";
 import { ErrorBoundary } from "./components/common/ErrorBoundary";
 import {
@@ -14,7 +13,6 @@ import {
 } from "./components/lazy";
 import { useOptimizedCallbacks } from "./hooks/useOptimizedCallbacks";
 import { usePerformanceMonitor } from "./utils/performance";
-import "@solana/wallet-adapter-react-ui/styles.css";
 import { useShakeDetection } from "./hooks/useShakeDetection";
 import { useVideoContent } from "./hooks/useVideoContent";
 
@@ -61,7 +59,6 @@ function AppContent() {
   const swipeCardRef = useRef<SwipeCardPublicMethods>(null);
   const { shaken, resetShake } = useShakeDetection();
   const { ready, authenticated, login, logout } = usePrivy();
-  const { connected } = useWallet();
 
   const currentContent = useMemo(
     () => videoContent[currentIndex],
@@ -81,12 +78,12 @@ function AppContent() {
     });
 
   useEffect(() => {
-    if (connected) setShowWallet(false);
-  }, [connected]);
+    if (authenticated) setShowWallet(false);
+  }, [authenticated]);
 
   useEffect(() => {
-    setShouldDisableSwipe(showWallet && connected);
-  }, [showWallet, connected]);
+    setShouldDisableSwipe(showWallet && authenticated);
+  }, [showWallet, authenticated]);
 
   // Keyboard navigation
   useEffect(() => {
@@ -190,12 +187,12 @@ function AppContent() {
       <div className="fixed bottom-4 left-4 flex gap-2">
         <button
           onClick={() => setIsMenuOpen(true)}
-          className="rounded-full h-12 w-12 bg-gradient-to-br from-blue-700 to-blue-500 hover:shadow-md transition-shadow focus:ring-2 focus:ring-white focus:outline-none"
+          className="rounded-full h-12 w-12 flex items-center justify-center  bg-transparent"
           aria-label="Open menu"
           aria-expanded={isMenuOpen}
           aria-controls="menu-drawer"
         >
-          Menu
+          <Menu className="h-6 w-6 text-white" />
         </button>
       </div>
 
@@ -220,20 +217,19 @@ function AppContent() {
       <div className="fixed top-4 right-4 text-center text-white/60 text-sm">
         {showWallet ? (
           <div className="flex items-center gap-2">
-            <WalletMultiButton />
             {authenticated ? (
               <button
                 onClick={logout}
-                className="ml-2 px-4 py-2 bg-red-600 hover:bg-red-700 rounded transition-colors focus:ring-2 focus:ring-white focus:outline-none"
+                className="px-4 py-2 bg-red-600 hover:bg-red-700 rounded transition-colors focus:ring-2 focus:ring-white focus:outline-none"
                 aria-label="Log out of account"
               >
                 Log out
               </button>
             ) : (
               <button
-                disabled={!ready || (ready && authenticated)}
+                disabled={!ready}
                 onClick={login}
-                className="ml-2 px-4 py-2 bg-blue-600 hover:bg-blue-700 rounded transition-colors disabled:opacity-50 focus:ring-2 focus:ring-white focus:outline-none"
+                className="px-4 py-2 bg-blue-600 hover:bg-blue-700 rounded transition-colors disabled:opacity-50 focus:ring-2 focus:ring-white focus:outline-none"
                 aria-label="Log in to account"
               >
                 Log in
