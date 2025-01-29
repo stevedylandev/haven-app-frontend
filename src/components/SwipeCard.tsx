@@ -87,11 +87,11 @@ export const SwipeCard = React.forwardRef<
   return (
     <div
       ref={cardRef}
-      className={`transition-all duration-300 ${
+      className={`transition-all duration-300 touch-none ${
         isExpanded
-          ? "fixed left-0 top-6 z-50 m-0 p-0"
+          ? "fixed inset-0 z-[100] m-0 p-0 bg-black flex items-center justify-center h-[100dvh] w-screen"
           : "absolute left-1/2 top-4 -translate-x-1/2 w-full max-w-sm aspect-[9/16]"
-      } ${disabled ? "opacity-50 cursor-not-allowed" : ""}`}
+      } ${disabled ? "opacity-50 cursor-not-allowed select-none" : ""}`}
     >
       <CardContainer
         content={content}

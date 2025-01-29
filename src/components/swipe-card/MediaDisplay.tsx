@@ -1,6 +1,6 @@
 import React from "react";
 import { Content } from "../../types";
-// import { MaximizeIcon, MinimizeIcon } from "./icons";
+import { MaximizeIcon, MinimizeIcon } from "./icons";
 
 interface MediaDisplayProps {
   content: Content;
@@ -13,47 +13,59 @@ interface MediaDisplayProps {
 
 export const MediaDisplay: React.FC<MediaDisplayProps> = ({
   content,
-  // isExpanded,
+  isExpanded,
   isVideoLoaded,
-  // onExpand,
+  onExpand,
   videoRef,
   onVideoLoad,
 }) => {
   return (
     <>
-      {/* <button
+      <button
         onClick={onExpand}
-        className="absolute top-4 right-4 z-50 backdrop-blur-md bg-white/10 hover:bg-white/20 text-white p-2.5 rounded-full shadow-lg transition-all duration-300 ease-out ring-1 ring-white/20 hover:ring-white/40 hover:scale-110"
+        className={`absolute z-50 bg-black/50 text-white p-2.5 rounded-full shadow-lg transition-all duration-300 ring-1 ring-white/20 active:scale-95 ${
+          isExpanded
+            ? "top-safe right-4 hover:bg-white/20"
+            : "bottom-4 right-4 hover:bg-black/70"
+        }`}
       >
         {isExpanded ? (
           <MinimizeIcon fill="currentColor" className="w-5 h-5" />
         ) : (
           <MaximizeIcon fill="currentColor" className="w-5 h-5" />
         )}
-      </button> */}
+      </button>
 
       {content.type === "image" ? (
         <img
           src={content.url}
           alt="Content to classify"
-          className="w-full h-full object-cover transition-transform duration-300 ease-out hover:scale-105"
+          className={`w-full h-full transition-transform duration-300 ease-out ${
+            isExpanded ? "object-contain" : "object-cover hover:scale-105"
+          }`}
           draggable={false}
         />
       ) : (
         <>
           {!isVideoLoaded && (
-            <div className="w-full h-full bg-gradient-to-br from-gray-900 to-black flex items-center justify-center">
+            <div className="absolute inset-0 bg-gradient-to-br from-gray-900 to-black flex items-center justify-center">
               <div className="w-12 h-12 rounded-full border-4 border-white/10 border-t-white animate-spin" />
             </div>
           )}
           <video
             ref={videoRef}
             src={content.url}
-            className="w-full h-full object-cover transition-transform duration-300 ease-out hover:scale-105"
+            className={`absolute inset-0 w-full h-full transition-transform duration-300 ease-out ${
+              isExpanded
+                ? "object-contain max-h-screen"
+                : "object-cover hover:scale-105"
+            }`}
             autoPlay
             loop
             muted
             playsInline
+            controls={isExpanded}
+            controlsList="nodownload noremoteplayback"
             onLoadedData={onVideoLoad}
             style={{ display: isVideoLoaded ? "block" : "none" }}
           />

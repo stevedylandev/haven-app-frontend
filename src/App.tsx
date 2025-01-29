@@ -174,7 +174,7 @@ function AppContent() {
               disabled={shouldDisableSwipe}
             />
           )}
-          {reward.classificationsCount >= 25 || shaken ? (
+          {reward.classificationsCount >= 50 || shaken ? (
             <LazySubmitButton
               classificationsCount={reward.classificationsCount}
               isShaken={shaken}

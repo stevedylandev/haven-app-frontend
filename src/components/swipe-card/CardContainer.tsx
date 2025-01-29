@@ -45,11 +45,14 @@ export const CardContainer: React.FC<CardContainerProps> = ({
 }) => {
   return (
     <Card
-      className={`absolute inset-0 border-none rounded-xl backdrop-blur-md bg-black/30 ${
+      className={`absolute inset-0 border-none rounded-xl backdrop-blur-[6px] bg-black/40 ${
         isHolding ? "ring-2 ring-yellow-500/70" : "ring-1 ring-white/10"
-      } transition-all duration-300 ease-out ${
-        isExpanded ? "cursor-zoom-out" : "cursor-grab"
-      } overflow-hidden shadow-[0_0_20px_rgba(255,255,255,0.07),0_0_40px_rgba(255,255,255,0.05)] before:absolute before:inset-0 before:bg-gradient-to-t before:from-black/80 before:via-transparent before:to-black/30 before:z-10`}
+      } will-change-transform ${
+        isExpanded
+          ? "cursor-zoom-out"
+          : "touch-none cursor-grab active:cursor-grabbing"
+      } overflow-hidden shadow-lg before:absolute before:inset-0 before:bg-gradient-to-t before:from-black/80 before:via-transparent before:to-black/30 before:z-10
+      active:shadow-inner active:brightness-90 active:scale-[0.98] transition-[shadow,brightness,scale] duration-200`}
       style={{
         transform: isExpanded ? "none" : transform,
         opacity,

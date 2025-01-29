@@ -1,5 +1,6 @@
 import { useState } from "react";
-import { Send, Loader2 } from "lucide-react";
+import { Send, Loader2, ExternalLink } from "lucide-react";
+import toast from "react-hot-toast";
 import {
   getStoredClassifications,
   clearClassifications,
@@ -53,15 +54,36 @@ export function SubmitButton({
       // Clear the stored classifications after successful submission
       clearClassifications();
 
+      // Mock transaction hash - in real implementation, this would come from the blockchain
+      const txHash = "0x123abc..."; // Replace with actual transaction hash
+      const explorerLink = `https://explorer.testnet.near.org/transactions/${txHash}`; // Replace with appropriate explorer URL
+
       // Disconnect after successful submission
       await logout();
-      alert(
-        "Classifications submitted successfully! Please reconnect wallet for next batch."
+
+      // Show success toast with transaction link
+      toast.success(
+        <div className="flex flex-col gap-2">
+          <p>Classifications submitted successfully!</p>
+          <a
+            href={explorerLink}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="flex items-center text-sm text-blue-400 hover:text-blue-300"
+          >
+            View on Explorer <ExternalLink className="w-4 h-4 ml-1" />
+          </a>
+          <p className="text-sm text-gray-300">
+            Please reconnect wallet for next batch.
+          </p>
+        </div>,
+        { duration: 5000 }
       );
+
       onSubmit();
     } catch (error) {
       console.error("Failed to submit classifications:", error);
-      alert("Failed to submit classifications. Please try again.");
+      toast.error("Failed to submit classifications. Please try again.");
     } finally {
       setIsLoading(false);
     }

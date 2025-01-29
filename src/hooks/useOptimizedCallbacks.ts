@@ -1,6 +1,10 @@
 import { useMemo, useCallback } from "react";
 import { toast } from "react-hot-toast";
-import { storeClassification } from "../utils/storage";
+import {
+  storeClassification,
+  setWalletPrompted,
+  setBettingPrompted,
+} from "../utils/storage";
 import type { Content, UserReward } from "../types";
 import type { SwipeCardPublicMethods } from "../components/lazy";
 
@@ -41,7 +45,11 @@ export function useOptimizedCallbacks({
       if (!selectedActionId) return;
 
       try {
-        storeClassification(currentContent.id, selectedActionId);
+        // Store classification and check if we should prompt
+        const { shouldPromptWallet, shouldPromptBetting } = storeClassification(
+          currentContent.id,
+          selectedActionId
+        );
 
         setReward((prev) => ({
           points: prev.points + (currentContent.pointsValue || 0),
@@ -51,14 +59,32 @@ export function useOptimizedCallbacks({
 
         setCurrentIndex((prev) => (prev + 1) % videoContent.length);
 
-        if (reward.classificationsCount >= 3) {
+        // Handle prompts
+        if (shouldPromptWallet) {
           setShowWallet(true);
+          setWalletPrompted();
+          toast.success(
+            "You've unlocked wallet features! Please connect your wallet to continue.",
+            {
+              duration: 3000,
+              position: "bottom-center",
+            }
+          );
+        } else if (shouldPromptBetting) {
+          setBettingPrompted();
+          toast.success(
+            "You've unlocked betting features! Try placing your first bet.",
+            {
+              duration: 3000,
+              position: "bottom-center",
+            }
+          );
+        } else {
+          toast.success("Classification saved!", {
+            duration: 600,
+            position: "bottom-right",
+          });
         }
-
-        toast.success("Classification saved!", {
-          duration: 600,
-          position: "bottom-right",
-        });
       } catch (error) {
         toast.error("Failed to store classification");
         console.error("Classification error:", error);
@@ -88,7 +114,7 @@ export function useOptimizedCallbacks({
 
   // Memoized remaining classifications calculation
   const remainingClassifications = useMemo(() => {
-    return 25 - reward.classificationsCount;
+    return 50 - reward.classificationsCount;
   }, [reward.classificationsCount]);
 
   return {
