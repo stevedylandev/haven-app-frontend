@@ -145,7 +145,7 @@ function AppContent() {
 
   return (
     <div
-      className="bg-black min-h-screen max-sm:h-screen overflow-hidden bg-gradient-to-b from-pink-400/10 via-black to-purple-500/10 flex flex-col items-center justify-center"
+      className="bg-black min-h-screen max-sm:h-[100dvh] overflow-hidden bg-gradient-to-b from-pink-400/10 via-black to-purple-500/10 flex flex-col items-center justify-center"
       role="main"
     >
       <ErrorBoundary>
