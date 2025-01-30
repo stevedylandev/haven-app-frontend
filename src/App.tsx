@@ -29,7 +29,7 @@ const LoadingSpinner = () => (
 
 const LoadingScreen = () => (
   <div
-    className="min-h-screen bg-gradient-to-br from-purple-900/50 to-black flex items-center justify-center"
+    className="min-h-screen  bg-gradient-to-br from-purple-900/50 to-black flex items-center justify-center"
     role="status"
     aria-label="Loading application"
   >
@@ -123,7 +123,7 @@ function AppContent() {
   if (errorMessage) {
     return (
       <div
-        className="min-h-screen bg-gradient-to-br from-purple-900/50 to-black flex items-center justify-center"
+        className="min-h-screen  bg-gradient-to-br from-purple-900/50 to-black flex items-center justify-center"
         role="alert"
       >
         <div className="text-red-500 text-center max-w-md mx-auto p-4">
@@ -145,7 +145,7 @@ function AppContent() {
 
   return (
     <div
-      className="bg-black min-h-screen bg-gradient-to-b from-pink-400/10 via-black to-purple-500/10 flex flex-col items-center justify-center"
+      className="bg-black min-h-screen max-sm:h-screen overflow-hidden bg-gradient-to-b from-pink-400/10 via-black to-purple-500/10 flex flex-col items-center justify-center"
       role="main"
     >
       <ErrorBoundary>
@@ -184,7 +184,7 @@ function AppContent() {
         </Suspense>
       </ErrorBoundary>
 
-      <div className="fixed bottom-4 left-4 flex gap-2">
+      <div className="fixed hidden bottom-4 left-4 sm:flex gap-2">
         <button
           onClick={() => setIsMenuOpen(true)}
           className="rounded-full h-12 w-12 flex items-center justify-center  bg-transparent"
@@ -197,7 +197,7 @@ function AppContent() {
       </div>
 
       <div
-        className="sr-only"
+        className="sr-only hidden sm:flex"
         role="status"
         aria-live="polite"
         aria-atomic="true"
@@ -208,7 +208,7 @@ function AppContent() {
       </div>
 
       <div
-        className="fixed bottom-1 left-0 right-0 text-center text-white/60 text-sm"
+        className="fixed max-sm:hidden  bottom-1 left-0 right-0 text-center text-white/60 text-sm"
         aria-hidden="true"
       >
         Swipe left or right to classify the action
@@ -237,7 +237,7 @@ function AppContent() {
             )}
           </div>
         ) : (
-          <span aria-live="polite">
+          <span aria-live="polite" className="hidden sm:inline">
             Classify {remainingClassifications} more clips to submit
           </span>
         )}

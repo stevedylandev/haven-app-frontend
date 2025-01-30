@@ -45,7 +45,7 @@ export const CardContainer: React.FC<CardContainerProps> = ({
 }) => {
   return (
     <Card
-      className={`absolute inset-0 border-none rounded-xl backdrop-blur-[6px] bg-black/40 ${
+      className={`absolute inset-0 border-none sm:rounded-xl backdrop-blur-[6px] bg-black/40 ${
         isHolding ? "ring-2 ring-yellow-500/70" : "ring-1 ring-white/10"
       } will-change-transform ${
         isExpanded
