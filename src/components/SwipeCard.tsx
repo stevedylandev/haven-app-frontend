@@ -87,7 +87,7 @@ export const SwipeCard = React.forwardRef<
   return (
     <div
       ref={cardRef}
-      className={`transition-all h-full duration-300 touch-none ${
+      className={`transition-all max-sm:h-full duration-300 touch-none ${
         isExpanded
           ? "fixed inset-0 z-[100] m-0 p-0 bg-black flex items-center justify-center h-[100dvh] w-screen"
           : "absolute left-1/2 top-0 sm:top-4 -translate-x-1/2 w-full max-w-sm aspect-[9/16]"
