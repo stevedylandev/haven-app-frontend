@@ -24,7 +24,7 @@ export const useBetting = ({
     const audio = new Audio();
     audio.src =
       "data:audio/wav;base64,UklGRkQFAABXQVZFZm10IBAAAAABAAEARKwAAIhYAQACABAAZGF0YSAFAACAgICAgICAgICAgICAgICAgICAgICAgIB/f3+AgICAgICAgICAgICA"; // Short click sound
-    audio.volume = 0.2;
+    audio.volume = 1;
     audioRef.current = audio;
   }, []);
 
