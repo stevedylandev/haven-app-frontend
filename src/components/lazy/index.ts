@@ -76,6 +76,8 @@ export const LazyAudiusControls = createLazyComponent<Record<never, never>>(
   "AudiusControls"
 );
 
+export const LazyDMCA = lazy(() => import("../DMCA"));
+
 export const LazySubmitButton = createLazyComponent<SubmitButtonProps>(
   () => import("../SubmitButton"),
   "SubmitButton"

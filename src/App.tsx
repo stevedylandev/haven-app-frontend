@@ -1,6 +1,7 @@
 import { useRef, useState, useMemo, useEffect, Suspense } from "react";
 import { usePrivy } from "@privy-io/react-auth";
 import { Menu } from "lucide-react";
+import { BrowserRouter, Routes, Route, Link } from "react-router-dom";
 import { Providers } from "./components/providers/Providers";
 import { ErrorBoundary } from "./components/common/ErrorBoundary";
 import {
@@ -9,6 +10,7 @@ import {
   LazyShareButton,
   LazyAudiusControls,
   LazySubmitButton,
+  LazyDMCA,
   type SwipeCardPublicMethods,
 } from "./components/lazy";
 import { useOptimizedCallbacks } from "./hooks/useOptimizedCallbacks";
@@ -45,6 +47,8 @@ function AppContent() {
     loading: isLoading,
     error: errorMessage,
   } = useVideoContent();
+
+  console.log("Video content:", videoContent);
 
   const [currentIndex, setCurrentIndex] = useState(0);
   const [reward, setReward] = useState({
@@ -208,11 +212,18 @@ function AppContent() {
       </div>
 
       <div
-        className="fixed max-sm:hidden  bottom-1 left-0 right-0 text-center text-white/60 text-sm"
+        className="fixed max-sm:hidden bottom-1 left-0 right-0 text-center text-white/60 text-sm"
         aria-hidden="true"
       >
-        Swipe left or right to classify the action
+        <div>Swipe left or right to classify the action</div>
       </div>
+
+      <Link
+        to="/dmca"
+        className="fixed bottom-4 right-4 text-xs text-white/40 hover:text-white/60 transition-colors"
+      >
+        DMCA Policy
+      </Link>
 
       <div className="fixed top-4 right-4 text-center text-white/60 text-sm">
         {showWallet ? (
@@ -249,7 +260,19 @@ function AppContent() {
 function App() {
   return (
     <Providers>
-      <AppContent />
+      <BrowserRouter>
+        <Routes>
+          <Route path="/" element={<AppContent />} />
+          <Route
+            path="/dmca"
+            element={
+              <Suspense fallback={<LoadingSpinner />}>
+                <LazyDMCA />
+              </Suspense>
+            }
+          />
+        </Routes>
+      </BrowserRouter>
     </Providers>
   );
 }
