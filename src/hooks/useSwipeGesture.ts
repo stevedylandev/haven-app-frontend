@@ -97,8 +97,6 @@ export const useSwipeGesture = ({
           haptic.success();
           onSwipe(direction, betAmount);
           onBetReset();
-          // Reset position after swipe
-          api.start({ x: 0 });
         },
       });
     } else {

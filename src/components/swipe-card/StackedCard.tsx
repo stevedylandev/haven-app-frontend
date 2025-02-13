@@ -51,8 +51,11 @@ export const StackedCard: React.FC<StackedCardProps> = ({
   // Motion values for interactive animations
   const x = useMotionValue(0);
   const scale = useTransform(x, [-200, 0, 200], [0.8, 1, 0.8]);
-  const rotate = useTransform(x, [-200, 0, 200], [-30, 0, 30]);
-
+  const dragOpacity = useTransform(
+    x,
+    [-300, -200, 0, 200, 300],
+    [0.3, 0.7, 1, 0.7, 0.3]
+  );
   // Spring animations
   const springStyle = useSpring({
     transform: `
@@ -61,13 +64,19 @@ export const StackedCard: React.FC<StackedCardProps> = ({
       translateX(${
         swipeDirection === "left" ? -500 : swipeDirection === "right" ? 500 : 0
       }px)
-      rotate(${
-        swipeDirection === "left" ? -50 : swipeDirection === "right" ? 50 : 0
-      }deg)
     `,
-    opacity: isActive ? 1 : Math.max(0.6 - index * 0.2, 0),
+    opacity: isActive
+      ? swipeDirection
+        ? 0 // Fade out when swiping
+        : 1 // Full opacity when not swiping
+      : Math.max(0.6 - index * 0.2, 0), // Stacked cards opacity
     immediate: isExpanded,
-    config: { tension: 500, friction: 30 },
+    config: {
+      tension: 500,
+      friction: 30,
+      // Slower animation for opacity to create smooth fade
+      opacity: { tension: 200, friction: 20 },
+    },
   });
 
   return (
@@ -86,7 +95,7 @@ export const StackedCard: React.FC<StackedCardProps> = ({
           height: "100%",
           x: isActive ? x : 0,
           scale: isActive ? scale : 1,
-          rotate: isActive ? rotate : 0,
+          opacity: isActive ? dragOpacity : 1,
         }}
       >
         <Card
