@@ -82,7 +82,7 @@ export function useOptimizedCallbacks({
         } else {
           toast.success("Classification saved!", {
             duration: 600,
-            position: "bottom-right",
+            position: "top-center",
           });
         }
       } catch (error) {

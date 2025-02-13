@@ -11,6 +11,12 @@ interface MenuDrawerProps {
   isOpen: boolean;
   onClose: () => void;
   reward: UserReward;
+  showWallet: boolean;
+  authenticated: boolean;
+  ready: boolean;
+  onLogin: () => void;
+  onLogout: () => void;
+  remainingClassifications: number;
 }
 
 interface ShareButtonProps {

@@ -31,7 +31,7 @@ const LoadingSpinner = () => (
 
 const LoadingScreen = () => (
   <div
-    className="min-h-screen  bg-gradient-to-br from-purple-900/50 to-black flex items-center justify-center"
+    className="min-h-screen bg-gradient-to-br from-purple-900/50 to-black flex items-center justify-center"
     role="status"
     aria-label="Loading application"
   >
@@ -59,6 +59,7 @@ function AppContent() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [showWallet, setShowWallet] = useState(false);
   const [shouldDisableSwipe, setShouldDisableSwipe] = useState(false);
+  const [isMobile, setIsMobile] = useState(false);
 
   const swipeCardRef = useRef<SwipeCardPublicMethods>(null);
   const { shaken, resetShake } = useShakeDetection();
@@ -88,6 +89,17 @@ function AppContent() {
   useEffect(() => {
     setShouldDisableSwipe(showWallet && authenticated);
   }, [showWallet, authenticated]);
+
+  useEffect(() => {
+    const checkMobile = () => {
+      setIsMobile(window.innerWidth < 640);
+    };
+
+    checkMobile();
+    window.addEventListener("resize", checkMobile);
+
+    return () => window.removeEventListener("resize", checkMobile);
+  }, []);
 
   // Keyboard navigation
   useEffect(() => {
@@ -127,7 +139,7 @@ function AppContent() {
   if (errorMessage) {
     return (
       <div
-        className="min-h-screen  bg-gradient-to-br from-purple-900/50 to-black flex items-center justify-center"
+        className="min-h-screen bg-gradient-to-br from-purple-900/50 to-black flex items-center justify-center"
         role="alert"
       >
         <div className="text-red-500 text-center max-w-md mx-auto p-4">
@@ -159,6 +171,12 @@ function AppContent() {
             isOpen={isMenuOpen}
             onClose={() => setIsMenuOpen(false)}
             reward={reward}
+            showWallet={showWallet}
+            authenticated={authenticated}
+            ready={ready}
+            onLogin={login}
+            onLogout={logout}
+            remainingClassifications={remainingClassifications}
           />
           <LazyAudiusControls />
           {videoContent.length > 0 && currentContent && (
@@ -188,20 +206,27 @@ function AppContent() {
         </Suspense>
       </ErrorBoundary>
 
-      <div className="fixed hidden bottom-4 left-4 sm:flex gap-2">
-        <button
-          onClick={() => setIsMenuOpen(true)}
-          className="rounded-full h-12 w-12 flex items-center justify-center  bg-transparent"
-          aria-label="Open menu"
-          aria-expanded={isMenuOpen}
-          aria-controls="menu-drawer"
-        >
-          <Menu className="h-6 w-6 text-white" />
-        </button>
-      </div>
+      <button
+        onClick={() => setIsMenuOpen(true)}
+        className={`fixed ${
+          isMobile
+            ? "top-4 right-4 px-3 py-2 rounded-lg"
+            : "bottom-4 left-4 px-4 py-2.5 rounded-full"
+        } flex items-center gap-2 bg-white/10 hover:bg-white/20 active:bg-white/25 backdrop-blur-sm border border-white/20 transition-all duration-200 group z-50`}
+        aria-label="Open menu"
+        aria-expanded={isMenuOpen}
+        aria-controls="menu-drawer"
+      >
+        <Menu
+          className={`h-5 w-5 text-white ${
+            !isMobile && "group-hover:scale-110 transition-transform"
+          }`}
+        />
+        <span className="text-sm text-white font-medium">Menu</span>
+      </button>
 
       <div
-        className="sr-only hidden sm:flex"
+        className="sr-only"
         role="status"
         aria-live="polite"
         aria-atomic="true"
@@ -220,12 +245,12 @@ function AppContent() {
 
       <Link
         to="/dmca"
-        className="fixed bottom-4 right-4 text-xs text-white/40 hover:text-white/60 transition-colors"
+        className="fixed bottom-4 right-4 text-xs text-white/40 hover:text-white/60 transition-colors max-sm:hidden"
       >
         DMCA Policy
       </Link>
 
-      <div className="fixed top-4 right-4 text-center text-white/60 text-sm">
+      <div className="fixed top-4 right-4 text-center text-white/60 text-sm max-sm:hidden">
         {showWallet ? (
           <div className="flex items-center gap-2">
             {authenticated ? (

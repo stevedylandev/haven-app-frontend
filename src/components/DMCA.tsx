@@ -1,13 +1,29 @@
 import { motion } from "framer-motion";
+import { useNavigate } from "react-router-dom";
+import { ArrowLeft } from "lucide-react";
 
 const DMCA = () => {
+  const navigate = useNavigate();
+
   return (
-    <div className="min-h-screen bg-black text-white py-20">
+    <div className="min-h-screen bg-black text-white pb-20">
+      <div className="sticky top-0 z-50 bg-black/80 backdrop-blur-sm border-b border-white/10">
+        <div className="container mx-auto px-4 py-4">
+          <button
+            onClick={() => navigate("/")}
+            className="inline-flex items-center gap-2 text-white/60 hover:text-white transition-colors"
+            aria-label="Go back to main page"
+          >
+            <ArrowLeft className="h-5 w-5" />
+            <span>Back</span>
+          </button>
+        </div>
+      </div>
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.6 }}
-        className="container mx-auto px-4 sm:px-6 lg:px-8 max-w-3xl"
+        className="container mx-auto px-4 sm:px-6 lg:px-8 max-w-3xl pt-8"
       >
         <h1 className="text-3xl font-bold mb-8 bg-gradient-to-r from-red-400 to-pink-600 bg-clip-text text-transparent">
           Digital Millennium Copyright Act (DMCA) Policy
