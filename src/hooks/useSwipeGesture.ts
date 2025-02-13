@@ -1,6 +1,8 @@
-import { useState, useCallback, useRef } from "react";
+import { useState } from "react";
+import { useSpring } from "@react-spring/web";
+import { useHapticFeedback } from "./useHapticFeedback";
 
-interface SwipeGestureConfig {
+interface SwipeGestureProps {
   onSwipe: (direction: "left" | "right", betAmount: number) => void;
   isExpanded: boolean;
   disabled?: boolean;
@@ -8,138 +10,133 @@ interface SwipeGestureConfig {
   onBetReset: () => void;
 }
 
+type GestureHandlers = {
+  onTouchStart: (e: React.TouchEvent | React.MouseEvent) => void;
+  onTouchMove: (e: React.TouchEvent | React.MouseEvent) => void;
+  onTouchEnd: () => void;
+  onMouseDown: (e: React.MouseEvent) => void;
+  onMouseMove: (e: React.MouseEvent) => void;
+  onMouseUp: () => void;
+  onMouseLeave: () => void;
+  onClick: () => void;
+};
+
 export const useSwipeGesture = ({
   onSwipe,
   isExpanded,
   disabled,
   betAmount,
   onBetReset,
-}: SwipeGestureConfig) => {
-  const [startX, setStartX] = useState(0);
-  const [startY, setStartY] = useState(0);
-  const [currentX, setCurrentX] = useState(0);
+}: SwipeGestureProps) => {
   const [isDragging, setIsDragging] = useState(false);
-  const [hoverSide, setHoverSide] = useState<"left" | "right" | null>(null);
+  const haptic = useHapticFeedback();
 
-  const startTime = useRef(0);
-  const isVerticalScroll = useRef(false);
-
-  const handleTouchStart = useCallback(
-    (e: React.TouchEvent | React.MouseEvent) => {
-      if (isExpanded || disabled) return;
-
-      if ("touches" in e) {
-        const touch = e.touches[0];
-        setStartX(touch.clientX);
-        setStartY(touch.clientY);
-        startTime.current = Date.now();
-        isVerticalScroll.current = false;
-        const target = e.currentTarget as HTMLElement;
-        target.style.transition = "none";
-      } else {
-        setStartX(e.clientX);
-      }
-
-      setIsDragging(true);
+  // Spring animation for the card
+  const [{ x }, api] = useSpring(() => ({
+    x: 0,
+    config: {
+      tension: 300,
+      friction: 20,
+      mass: 0.5,
     },
-    [isExpanded, disabled]
-  );
+  }));
 
-  const handleTouchMove = useCallback(
-    (e: React.TouchEvent | React.MouseEvent) => {
-      if (!isDragging || isExpanded || disabled) return;
+  // Threshold for swipe action (percentage of screen width)
+  const SWIPE_THRESHOLD = 0.4;
 
-      if ("touches" in e) {
-        const touch = e.touches[0];
-        const deltaX = touch.clientX - startX;
-        const deltaY = touch.clientY - startY;
+  // Touch handling
+  let startX = 0;
+  let currentX = 0;
+  let isSwiping = false;
 
-        // Determine scroll direction on initial movement
-        if (Math.abs(deltaX) < 10 && Math.abs(deltaY) > 10) {
-          isVerticalScroll.current = true;
-          setIsDragging(false);
-          return;
-        }
+  const handleTouchStart = (e: React.TouchEvent | React.MouseEvent) => {
+    if (isExpanded || disabled) return;
 
-        if (!isVerticalScroll.current) {
-          e.preventDefault(); // Prevent vertical scrolling during swipe
-          setCurrentX(deltaX);
-        }
-      } else {
-        setCurrentX(e.clientX - startX);
-      }
-    },
-    [isDragging, isExpanded, disabled, startX, startY]
-  );
+    setIsDragging(true);
+    startX = "touches" in e ? e.touches[0].clientX : e.clientX;
+    haptic.lightTap();
+    isSwiping = false;
+  };
 
-  const handleTouchEnd = useCallback(
-    (e?: React.TouchEvent | React.MouseEvent) => {
-      if (!isDragging || isExpanded) return;
-      setIsDragging(false);
+  const handleTouchMove = (e: React.TouchEvent | React.MouseEvent) => {
+    if (!isDragging || isExpanded || disabled) return;
 
-      const swipeTime = Date.now() - startTime.current;
-      const velocity = Math.abs(currentX) / swipeTime;
-      const screenWidth = window.innerWidth;
-      const swipeThreshold = Math.min(screenWidth * 0.25, 100); // 25% of screen width or 100px
+    const clientX = "touches" in e ? e.touches[0].clientX : e.clientX;
+    currentX = clientX - startX;
+    isSwiping = true;
 
-      if (Math.abs(currentX) > swipeThreshold || velocity > 0.5) {
-        onSwipe(currentX > 0 ? "right" : "left", betAmount);
-        onBetReset();
-      }
+    // Apply resistance as the card is dragged further
+    const resistance = Math.abs(currentX) > 100 ? 0.5 : 1;
+    const dampedX = currentX * resistance;
 
-      setCurrentX(0);
-      if (e?.currentTarget) {
-        const target = e.currentTarget as HTMLElement;
-        target.style.transition = "transform 0.2s ease-out";
-      }
-    },
-    [isDragging, isExpanded, currentX, onSwipe, betAmount, onBetReset]
-  );
+    // Animate the card position
+    api.start({ x: dampedX });
 
-  const handleMouseMove = useCallback(
-    (e: React.MouseEvent) => {
-      if (isDragging || isExpanded) return;
-      const rect = e.currentTarget.getBoundingClientRect();
-      const x = e.clientX - rect.left;
-      setHoverSide(x < rect.width / 2 ? "left" : "right");
-    },
-    [isDragging, isExpanded]
-  );
+    // Optional: Add subtle haptic feedback during drag
+    if (Math.abs(currentX) % 50 === 0) {
+      haptic.lightTap();
+    }
+  };
 
-  const handleMouseLeave = useCallback(() => {
-    setHoverSide(null);
-  }, []);
+  const handleTouchEnd = () => {
+    if (!isDragging || isExpanded || disabled) return;
 
-  // Click handler removed to prevent swipes on desktop clicks
-  const handleClick = useCallback(() => {
-    // Do nothing - clicks should not trigger swipes
-  }, []);
+    setIsDragging(false);
+    const screenWidth = window.innerWidth;
+    const swipePercentage = Math.abs(currentX) / screenWidth;
 
-  const transform = isDragging
-    ? `translateX(${currentX}px) rotate(${currentX * 0.1}deg)`
-    : hoverSide === "left"
-    ? "translateX(-20px) rotate(-2deg)"
-    : hoverSide === "right"
-    ? "translateX(20px) rotate(2deg)"
-    : "";
+    if (swipePercentage > SWIPE_THRESHOLD) {
+      // Determine swipe direction
+      const direction = currentX > 0 ? "right" : "left";
 
-  const opacity = isDragging ? Math.max(0, 1 - Math.abs(currentX) / 500) : 1;
+      // Animate card off screen
+      api.start({
+        x: direction === "right" ? screenWidth : -screenWidth,
+        config: { tension: 200, friction: 25 },
+        onRest: () => {
+          haptic.success();
+          onSwipe(direction, betAmount);
+          onBetReset();
+          // Reset position after swipe
+          api.start({ x: 0 });
+        },
+      });
+    } else {
+      // Return card to center if threshold not met
+      api.start({
+        x: 0,
+        config: { tension: 250, friction: 20 },
+        onRest: () => {
+          if (swipePercentage > 0.1) {
+            haptic.error();
+          }
+        },
+      });
+    }
+  };
+
+  const handleClick = () => {
+    // Only trigger click if we haven't been swiping
+    if (!isSwiping && !isExpanded && !disabled) {
+      haptic.lightTap();
+    }
+  };
 
   return {
-    transform,
-    opacity,
     handlers: {
       onTouchStart: handleTouchStart,
       onTouchMove: handleTouchMove,
       onTouchEnd: handleTouchEnd,
       onMouseDown: handleTouchStart,
-      onMouseMove: (e: React.MouseEvent) => {
-        handleTouchMove(e);
-        handleMouseMove(e);
-      },
+      onMouseMove: handleTouchMove,
       onMouseUp: handleTouchEnd,
-      onMouseLeave: handleMouseLeave,
+      onMouseLeave: handleTouchEnd,
       onClick: handleClick,
+    } as GestureHandlers,
+    // Expose spring style for animations
+    style: {
+      x,
     },
+    isDragging,
   };
 };

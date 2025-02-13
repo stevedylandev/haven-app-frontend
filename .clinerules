@@ -1,0 +1,14 @@
+# Project Intelligence Rules
+
+USE_TYPESCRIPT=true # All new code must be in TypeScript
+USE_TAILWIND=true # Use Tailwind CSS for styling
+REQUIRE_TESTS=true # All new components need tests
+LAZY_LOAD=true # Use lazy loading for heavy components
+USE_HOOKS=true # Prefer custom hooks for shared logic
+WALLET_REQUIRED=50 # Require wallet linking after 50 clips
+USE_NATS=true # Use NATS for service communication
+USE_IPFS=true # Store videos on IPFS
+USE_POSTGRESQL=true # Use PostgreSQL for structured data
+USE_E2E_ENCRYPTION=true # Implement end-to-end encryption
+MICROSERVICES=true # Follow microservices architecture
+USE_ZERO_TRUST=true # Implement zero-trust security model
