@@ -1,6 +1,8 @@
 import { useRef, useState, useMemo, useEffect, Suspense } from "react";
 import { usePrivy } from "@privy-io/react-auth";
 import { Menu } from "lucide-react";
+import UserInfoDialog from "./components/auth/UserInfoDialog";
+import { useAutoRegistration } from "./hooks/useAutoRegistration";
 import { BrowserRouter, Routes, Route, Link } from "react-router-dom";
 import { Providers } from "./components/providers/Providers";
 import { ErrorBoundary } from "./components/common/ErrorBoundary";
@@ -13,6 +15,8 @@ import {
   LazyDMCA,
   type SwipeCardPublicMethods,
 } from "./components/lazy";
+import { VerifyClips } from "./pages/VerifyClips";
+import RegisterPage from "./pages/Register";
 import { useOptimizedCallbacks } from "./hooks/useOptimizedCallbacks";
 import { usePerformanceMonitor } from "./utils/performance";
 import { useShakeDetection } from "./hooks/useShakeDetection";
@@ -64,6 +68,13 @@ function AppContent() {
   const swipeCardRef = useRef<SwipeCardPublicMethods>(null);
   const { shaken, resetShake } = useShakeDetection();
   const { ready, authenticated, login, logout } = usePrivy();
+  const {
+    user,
+    isLoading: isRegistering,
+    showRegistrationDialog,
+    closeRegistrationDialog,
+    handleRegistration,
+  } = useAutoRegistration();
 
   const currentContent = useMemo(
     () => videoContent[currentIndex],
@@ -116,10 +127,6 @@ function AppContent() {
         case "Escape":
           setIsMenuOpen(false);
           break;
-        case "m":
-        case "M":
-          setIsMenuOpen((prev) => !prev);
-          break;
       }
     };
 
@@ -164,6 +171,19 @@ function AppContent() {
       className="bg-black min-h-screen max-sm:h-[100dvh] overflow-hidden bg-gradient-to-b from-pink-400/10 via-black to-purple-500/10 flex flex-col items-center justify-center"
       role="main"
     >
+      {showRegistrationDialog && (
+        <UserInfoDialog
+          isOpen={showRegistrationDialog}
+          onClose={closeRegistrationDialog}
+          onSubmit={handleRegistration}
+          ethereumAddress={user?.ethereumAddress || ""}
+        />
+      )}
+      {isRegistering && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
+          <div className="text-white">Setting up your account...</div>
+        </div>
+      )}
       <ErrorBoundary>
         <Suspense fallback={<LoadingSpinner />}>
           {currentContent?.id && <LazyShareButton ipfsId={currentContent.id} />}
@@ -177,6 +197,7 @@ function AppContent() {
             onLogin={login}
             onLogout={logout}
             remainingClassifications={remainingClassifications}
+            user={user}
           />
           <LazyAudiusControls />
           {videoContent.length > 0 && currentContent && (
@@ -243,12 +264,14 @@ function AppContent() {
         <div>Swipe left or right to classify the action</div>
       </div>
 
-      <Link
-        to="/dmca"
-        className="fixed bottom-4 right-4 text-xs text-white/40 hover:text-white/60 transition-colors max-sm:hidden"
-      >
-        DMCA Policy
-      </Link>
+      <div className="fixed bottom-4 right-4 flex gap-4 text-xs text-white/40 max-sm:hidden">
+        <Link to="/verify" className="hover:text-white/60 transition-colors">
+          Verify Clips
+        </Link>
+        <Link to="/dmca" className="hover:text-white/60 transition-colors">
+          DMCA Policy
+        </Link>
+      </div>
 
       <div className="fixed top-4 right-4 text-center text-white/60 text-sm max-sm:hidden">
         {showWallet ? (
@@ -293,6 +316,22 @@ function App() {
             element={
               <Suspense fallback={<LoadingSpinner />}>
                 <LazyDMCA />
+              </Suspense>
+            }
+          />
+          <Route
+            path="/verify"
+            element={
+              <Suspense fallback={<LoadingSpinner />}>
+                <VerifyClips />
+              </Suspense>
+            }
+          />
+          <Route
+            path="/register"
+            element={
+              <Suspense fallback={<LoadingSpinner />}>
+                <RegisterPage />
               </Suspense>
             }
           />

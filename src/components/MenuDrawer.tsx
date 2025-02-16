@@ -1,7 +1,8 @@
 import { RewardDisplay } from "./RewardDisplay";
-import { UserReward } from "../types";
+import { UserReward, UserProfile } from "../types";
 import { X, LogOut, LogIn } from "lucide-react";
 import { Link } from "react-router-dom";
+import UserProfileDisplay from "./auth/UserProfileDisplay";
 import {
   Sheet,
   SheetContent,
@@ -28,6 +29,7 @@ interface MenuDrawerProps {
   onLogin: () => void;
   onLogout: () => void;
   remainingClassifications: number;
+  user: UserProfile | null;
 }
 
 const MenuContent = ({
@@ -40,6 +42,7 @@ const MenuContent = ({
   onLogout,
   remainingClassifications,
   isMobile,
+  user,
 }: MenuDrawerProps & { isMobile: boolean }) => {
   const Title = isMobile ? DrawerTitle : SheetTitle;
   const Close = isMobile ? DrawerClose : SheetClose;
@@ -58,6 +61,13 @@ const MenuContent = ({
       </Header>
 
       <div className="mt-6 space-y-6 overflow-y-auto">
+        {authenticated && user && (
+          <div className="space-y-4">
+            <h3 className="text-lg font-semibold text-white">Profile</h3>
+            <UserProfileDisplay user={user} />
+          </div>
+        )}
+
         <div className="space-y-4">
           <h3 className="text-lg font-semibold text-white">Your Progress</h3>
           <RewardDisplay reward={reward} />

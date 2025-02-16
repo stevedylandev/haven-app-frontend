@@ -10,8 +10,15 @@ export interface Content {
 export interface VideoClip {
   ipfs_cid: string;
   points_value: number;
-  left_action: string;
-  right_action: string;
+  clip_action: string;
+  random_action: string;
+}
+
+export interface RandomVideoClipResponse {
+  ipfs_cid: string;
+  points_value: number;
+  clip_action: string;
+  random_action: string;
 }
 
 export interface ActionChoice {
@@ -34,4 +41,36 @@ export interface Classification {
 export interface ClassificationStorage {
   classifications: Classification[];
   lastSubmitted: number | null;
+}
+
+export type RoleType = "HUMAN_LABELER" | "AI_LABLER" | "ADMIN";
+
+export interface UserRegistration {
+  userName: string;
+  email: string;
+  password: string;
+  roleType: RoleType;
+  ethereumAddress: string;
+}
+
+export interface UserProfile extends UserRegistration {
+  id: string;
+  createdAt: string;
+  points: number;
+  classificationsCount: number;
+}
+
+export interface ApiResponse<T> {
+  success: boolean;
+  message?: string;
+  data?: T;
+  error?: string;
+}
+
+export interface UserResponse {
+  id: string;
+  userName: string;
+  email: string;
+  roleType: RoleType;
+  ethereumAddress: string;
 }

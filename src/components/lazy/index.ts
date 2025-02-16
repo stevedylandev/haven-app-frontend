@@ -5,7 +5,7 @@ import {
   RefAttributes,
 } from "react";
 import type { SwipeCardProps, SwipeCardPublicMethods } from "../SwipeCard";
-import type { UserReward } from "../../types";
+import type { UserReward, UserProfile } from "../../types";
 
 interface MenuDrawerProps {
   isOpen: boolean;
@@ -17,6 +17,7 @@ interface MenuDrawerProps {
   onLogin: () => void;
   onLogout: () => void;
   remainingClassifications: number;
+  user: UserProfile | null;
 }
 
 interface ShareButtonProps {
