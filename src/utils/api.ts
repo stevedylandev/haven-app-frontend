@@ -5,7 +5,7 @@ import {
   UserProfile,
 } from "../types";
 
-const API_BASE_URL = "http://localhost:3000/api"; //cicd
+const API_BASE_URL = "http://103.179.45.246/api"; //cicd
 
 export async function fetchRandomVideoClip(): Promise<
   RandomVideoClipResponse[]

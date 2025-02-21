@@ -265,9 +265,9 @@ function AppContent() {
       </div>
 
       <div className="fixed bottom-4 right-4 flex gap-4 text-xs text-white/40 max-sm:hidden">
-        <Link to="/verify" className="hover:text-white/60 transition-colors">
+        {/* <Link to="/verify" className="hover:text-white/60 transition-colors">
           Verify Clips
-        </Link>
+        </Link> */}
         <Link to="/dmca" className="hover:text-white/60 transition-colors">
           DMCA Policy
         </Link>
