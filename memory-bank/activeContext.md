@@ -12,42 +12,53 @@ The development team is actively working on the decentralized video labeling and
 - Consensus-based label verification system
 - Bet placement and settlement logic
 - Core user dashboard components
+- Points tracking system implementation
+- Real-time notification system
 
 ### In Progress
 
-1. Enhancing video storage and retrieval via IPFS:
+1. Frontend UI/UX Enhancement:
 
-   - Implementing efficient video upload
-   - Optimizing retrieval performance
-   - Managing metadata storage
+   - Implementing confetti effect for successful bets (FR-2.1.4)
+   - Building comprehensive betting dashboard
+   - Enhancing transaction history display
+   - Developing user promotion indicators
+   - Implementing mandatory bet submission flow (FR-1.4.2)
 
-2. Expanding quality validation system:
+2. Wallet Integration Improvements:
 
-   - Refining consensus algorithms
-   - Implementing reputation scoring
-   - Building validation dashboards
+   - Adding 25-clip wallet prompt (FR-1.1.5)
+   - Implementing 50-clip betting requirement (FR-1.1.6)
+   - Enhancing transaction signing UX (FR-4.2.1)
+   - Improving wallet connection flow
 
-3. Scaling microservices:
-   - Optimizing service communication
-   - Implementing load balancing
-   - Enhancing error handling
+3. User Experience Optimization:
+   - Refining video clip navigation
+   - Enhancing betting interface feedback
+   - Improving mobile responsiveness
+   - Implementing advanced gesture controls
 
 ### Next Steps
 
-- Complete IPFS integration for video storage
-- Enhance quality validation algorithms
-- Scale microservices for increased load
-- Implement advanced monitoring and analytics
+- Complete transaction history dashboard implementation (FR-2.1.1)
+- Add confidence score input interface (FR-2.1.2)
+- Implement label selection improvements (FR-1.2.3)
+- Enhance bet settlement visualization
+- Add guided tutorials for new users
 
 ### Active Decisions
 
-- Using NATS for inter-service communication
-- Implementing circuit breakers for fault tolerance
-- Adopting zero-trust security model
+- Using Tailwind CSS for responsive design
+- Implementing lazy loading for performance
+- Using custom hooks for shared logic
+- Following TypeScript best practices
+- Implementing end-to-end encryption
 
 ### Current Considerations
 
-- Performance optimization for video processing
-- Scalability of consensus mechanisms
-- Security hardening for wallet operations
-- Enhancement of user feedback mechanisms
+- Mobile-first design approach
+- Performance optimization for video playback
+- Smooth wallet integration experience
+- Real-time feedback mechanisms
+- Accessibility improvements
+- Progressive enhancement strategy
