@@ -1,6 +1,6 @@
-import { RewardDisplay } from "./RewardDisplay";
+aimport { RewardDisplay } from "./RewardDisplay";
 import { UserReward, UserProfile } from "../types";
-import { X, LogOut, LogIn } from "lucide-react";
+import { X, LogOut, LogIn, Discord } from "lucide-react";
 import { Link } from "react-router-dom";
 import UserProfileDisplay from "./auth/UserProfileDisplay";
 import {

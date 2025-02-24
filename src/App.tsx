@@ -1,11 +1,12 @@
 import { useRef, useState, useMemo, useEffect, Suspense } from "react";
 import { usePrivy } from "@privy-io/react-auth";
-import { Menu } from "lucide-react";
+import { Menu, History } from "lucide-react";
 import UserInfoDialog from "./components/auth/UserInfoDialog";
 import { useAutoRegistration } from "./hooks/useAutoRegistration";
 import { BrowserRouter, Routes, Route, Link } from "react-router-dom";
 import { Providers } from "./components/providers/Providers";
 import { ErrorBoundary } from "./components/common/ErrorBoundary";
+import { BetHistoryDialog } from "./components/betting";
 import {
   LazySwipeCard,
   LazyMenuDrawer,
@@ -17,6 +18,7 @@ import {
 } from "./components/lazy";
 import { VerifyClips } from "./pages/VerifyClips";
 import RegisterPage from "./pages/Register";
+import BettingHistory from "./pages/BettingHistory";
 import { useOptimizedCallbacks } from "./hooks/useOptimizedCallbacks";
 import { usePerformanceMonitor } from "./utils/performance";
 import { useShakeDetection } from "./hooks/useShakeDetection";
@@ -64,6 +66,7 @@ function AppContent() {
   const [showWallet, setShowWallet] = useState(false);
   const [shouldDisableSwipe, setShouldDisableSwipe] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
+  const [showBetHistory, setShowBetHistory] = useState(false);
 
   const swipeCardRef = useRef<SwipeCardPublicMethods>(null);
   const { shaken, resetShake } = useShakeDetection();
@@ -126,6 +129,7 @@ function AppContent() {
           break;
         case "Escape":
           setIsMenuOpen(false);
+          setShowBetHistory(false);
           break;
       }
     };
@@ -265,18 +269,25 @@ function AppContent() {
       </div>
 
       <div className="fixed bottom-4 right-4 flex gap-4 text-xs text-white/40 max-sm:hidden">
-        {/* <Link to="/verify" className="hover:text-white/60 transition-colors">
-          Verify Clips
-        </Link> */}
         <Link to="/dmca" className="hover:text-white/60 transition-colors">
           DMCA Policy
         </Link>
       </div>
 
       <div className="fixed top-4 right-4 text-center text-white/60 text-sm max-sm:hidden">
-        {showWallet ? (
+        {authenticated && (
           <div className="flex items-center gap-2">
-            {authenticated ? (
+            <button
+              onClick={() => setShowBetHistory(true)}
+              className="px-4 py-2 bg-white/10 hover:bg-white/20 active:bg-white/25 backdrop-blur-sm border border-white/20 rounded transition-all duration-200 focus:ring-2 focus:ring-purple-500 focus:outline-none"
+              aria-label="View betting history"
+            >
+              <div className="flex items-center gap-2">
+                <History className="h-4 w-4" />
+                <span>Betting History</span>
+              </div>
+            </button>
+            {showWallet && (
               <button
                 onClick={logout}
                 className="px-4 py-2 bg-red-600 hover:bg-red-700 rounded transition-colors focus:ring-2 focus:ring-white focus:outline-none"
@@ -284,28 +295,39 @@ function AppContent() {
               >
                 Log out
               </button>
-            ) : (
-              <button
-                disabled={!ready}
-                onClick={login}
-                className="px-4 py-2 bg-blue-600 hover:bg-blue-700 rounded transition-colors disabled:opacity-50 focus:ring-2 focus:ring-white focus:outline-none"
-                aria-label="Log in to account"
-              >
-                Log in
-              </button>
             )}
           </div>
-        ) : (
+        )}
+
+        {!authenticated && showWallet && (
+          <button
+            disabled={!ready}
+            onClick={login}
+            className="px-4 py-2 bg-blue-600 hover:bg-blue-700 rounded transition-colors disabled:opacity-50 focus:ring-2 focus:ring-white focus:outline-none"
+            aria-label="Log in to account"
+          >
+            Log in
+          </button>
+        )}
+
+        {!showWallet && (
           <span aria-live="polite" className="hidden sm:inline">
             Classify {remainingClassifications} more clips to submit
           </span>
         )}
       </div>
+
+      <BetHistoryDialog
+        isOpen={showBetHistory}
+        onClose={() => setShowBetHistory(false)}
+      />
     </div>
   );
 }
 
 function App() {
+  const { authenticated } = usePrivy();
+
   return (
     <Providers>
       <BrowserRouter>
@@ -332,6 +354,14 @@ function App() {
             element={
               <Suspense fallback={<LoadingSpinner />}>
                 <RegisterPage />
+              </Suspense>
+            }
+          />
+          <Route
+            path="/betting-history"
+            element={
+              <Suspense fallback={<LoadingSpinner />}>
+                <BettingHistory authenticated={authenticated} />
               </Suspense>
             }
           />
