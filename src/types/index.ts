@@ -61,16 +61,26 @@ export interface UserProfile extends UserRegistration {
 }
 
 export interface ApiResponse<T> {
-  success: boolean;
-  message?: string;
-  data?: T;
-  error?: string;
+  HttpCode: number;
+  message: string;
+  data: T;
 }
 
-export interface UserResponse {
+export interface ProfileUpdateRequest {
+  userName?: string;
+  email?: string;
+  currentPassword?: string;
+  newPassword?: string;
+  ethereumAddress?: string;
+}
+
+export interface UserProfile {
   id: string;
   userName: string;
   email: string;
   roleType: RoleType;
   ethereumAddress: string;
+  points: number;
+  totalContributions: number;
+  createdAt: string;
 }
