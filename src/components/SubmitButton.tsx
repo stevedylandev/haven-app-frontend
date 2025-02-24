@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Send, Loader2, ExternalLink } from "lucide-react";
-import toast from "react-hot-toast";
+import { useToast } from "@/hooks/useToast";
 import {
   getStoredClassifications,
   clearClassifications,
@@ -22,6 +22,7 @@ export function SubmitButton({
 }: SubmitButtonProps) {
   const { isConnected, logout } = useWalletConnection();
   const { login } = usePrivy();
+  const { success, error } = useToast();
   const [isLoading, setIsLoading] = useState(false);
   const shouldShow = classificationsCount >= 25 || isShaken;
 
@@ -62,7 +63,7 @@ export function SubmitButton({
       await logout();
 
       // Show success toast with transaction link
-      toast.success(
+      success(
         <div className="flex flex-col gap-2">
           <p>Classifications submitted successfully!</p>
           <a
@@ -76,14 +77,13 @@ export function SubmitButton({
           <p className="text-sm text-gray-300">
             Please reconnect wallet for next batch.
           </p>
-        </div>,
-        { duration: 5000 }
+        </div>
       );
 
       onSubmit();
-    } catch (error) {
-      console.error("Failed to submit classifications:", error);
-      toast.error("Failed to submit classifications. Please try again.");
+    } catch (err) {
+      console.error("Failed to submit classifications:", err);
+      error("Failed to submit classifications. Please try again.");
     } finally {
       setIsLoading(false);
     }
@@ -96,7 +96,7 @@ export function SubmitButton({
         disabled={isLoading}
         size="lg"
         className="bg-gradient-to-br from-purple-900/50 to-black border border-purple-800/50 hover:bg-black/70
-                  shadow-lg transition-all transform hover:scale-105 active:scale-95 gap-2"
+                   shadow-lg transition-all transform hover:scale-105 active:scale-95 gap-2"
       >
         {isLoading ? (
           <>

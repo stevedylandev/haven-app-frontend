@@ -1,5 +1,5 @@
 import { useMemo, useCallback } from "react";
-import { toast } from "react-hot-toast";
+import { useToast } from "@/hooks/useToast";
 import {
   storeClassification,
   setWalletPrompted,
@@ -29,6 +29,8 @@ export function useOptimizedCallbacks({
   setShowWallet,
   resetShake,
 }: UseOptimizedCallbacksProps) {
+  const { success, error } = useToast();
+
   const handleSwipe = useCallback(
     (direction: "left" | "right") => {
       if (!videoContent.length || !currentContent) return;
@@ -63,31 +65,20 @@ export function useOptimizedCallbacks({
         if (shouldPromptWallet) {
           setShowWallet(true);
           setWalletPrompted();
-          toast.success(
-            "You've unlocked wallet features! Please connect your wallet to continue.",
-            {
-              duration: 3000,
-              position: "bottom-center",
-            }
+          success(
+            "You've unlocked wallet features! Please connect your wallet to continue."
           );
         } else if (shouldPromptBetting) {
           setBettingPrompted();
-          toast.success(
-            "You've unlocked betting features! Try placing your first bet.",
-            {
-              duration: 3000,
-              position: "bottom-center",
-            }
+          success(
+            "You've unlocked betting features! Try placing your first bet."
           );
         } else {
-          toast.success("Classification saved!", {
-            duration: 600,
-            position: "top-center",
-          });
+          success("Classification saved!");
         }
-      } catch (error) {
-        toast.error("Failed to store classification");
-        console.error("Classification error:", error);
+      } catch (err) {
+        error("Failed to store classification");
+        console.error("Classification error:", err);
       }
     },
     [
@@ -98,14 +89,16 @@ export function useOptimizedCallbacks({
       setReward,
       setCurrentIndex,
       setShowWallet,
+      success,
+      error,
     ]
   );
 
   const handleSubmit = useCallback(() => {
     resetShake();
     setReward((prev) => ({ ...prev, classificationsCount: 0 }));
-    toast.success("Progress submitted successfully!");
-  }, [resetShake, setReward]);
+    success("Progress submitted successfully!");
+  }, [resetShake, setReward, success]);
 
   // Memoized reward level calculation
   const rewardLevel = useMemo(() => {

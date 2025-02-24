@@ -1,10 +1,14 @@
-import { toast, ToastOptions } from "react-hot-toast";
-import { useEffect, useState, useCallback } from "react";
+import { useEffect, useState, useCallback, ReactNode } from "react";
+import {
+  toast as shadowToast,
+  useToast as useShadowToast,
+} from "@/hooks/use-toast";
 
 const MOBILE_BREAKPOINT = 768;
 
 export const useToast = () => {
   const [isMobile, setIsMobile] = useState(false);
+  const { toast: baseToast, dismiss } = useShadowToast();
 
   useEffect(() => {
     const checkMobile = () => {
@@ -17,32 +21,43 @@ export const useToast = () => {
   }, []);
 
   const showToast = useCallback(
-    (message: string, options?: ToastOptions) => {
-      if (isMobile) return; // Don't show toast on mobile
-      return toast(message, options);
+    (message: ReactNode) => {
+      if (isMobile) return;
+      return baseToast({
+        description: message,
+      });
     },
-    [isMobile]
+    [isMobile, baseToast]
   );
 
   const success = useCallback(
-    (message: string, options?: ToastOptions) => {
-      if (isMobile) return; // Don't show toast on mobile
-      return toast.success(message, options);
+    (message: ReactNode) => {
+      if (isMobile) return;
+      return baseToast({
+        description: message,
+      });
     },
-    [isMobile]
+    [isMobile, baseToast]
   );
 
   const error = useCallback(
-    (message: string, options?: ToastOptions) => {
-      if (isMobile) return; // Don't show toast on mobile
-      return toast.error(message, options);
+    (message: ReactNode) => {
+      if (isMobile) return;
+      return baseToast({
+        description: message,
+        variant: "destructive",
+      });
     },
-    [isMobile]
+    [isMobile, baseToast]
   );
 
   return {
     toast: showToast,
     success,
     error,
+    dismiss,
   };
 };
+
+// Export the raw toast function for direct usage
+export const toast = shadowToast;

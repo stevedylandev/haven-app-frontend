@@ -1,6 +1,6 @@
-aimport { RewardDisplay } from "./RewardDisplay";
+import { RewardDisplay } from "./RewardDisplay";
 import { UserReward, UserProfile } from "../types";
-import { X, LogOut, LogIn, Discord } from "lucide-react";
+import { X, LogOut, LogIn, MessageSquare, Send } from "lucide-react";
 import { Link } from "react-router-dom";
 import UserProfileDisplay from "./auth/UserProfileDisplay";
 import {
@@ -102,6 +102,30 @@ const MenuContent = ({
               )}
             </div>
           )}
+        </div>
+
+        <div className="space-y-4">
+          <h3 className="text-lg font-semibold text-white">Community</h3>
+          <a
+            href="https://discord.gg/haven"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="flex items-center gap-2 text-white/60 hover:text-white transition-colors"
+            onClick={onClose}
+          >
+            <MessageSquare className="h-4 w-4" />
+            <span>Join Discord</span>
+          </a>
+          <a
+            href="https://t.me/haven"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="flex items-center gap-2 text-white/60 hover:text-white transition-colors"
+            onClick={onClose}
+          >
+            <Send className="h-4 w-4" />
+            <span>Join Telegram</span>
+          </a>
         </div>
 
         <div className="space-y-4">

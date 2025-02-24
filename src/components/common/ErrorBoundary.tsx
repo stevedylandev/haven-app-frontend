@@ -1,5 +1,5 @@
 import { Component, ErrorInfo, ReactNode } from "react";
-import toast from "react-hot-toast";
+import { toast } from "@/hooks/useToast";
 
 interface Props {
   children: ReactNode;
@@ -22,7 +22,10 @@ export class ErrorBoundary extends Component<Props, State> {
 
   public componentDidCatch(error: Error, errorInfo: ErrorInfo) {
     console.error("Uncaught error:", error, errorInfo);
-    toast.error("Something went wrong. Please try again later.");
+    toast({
+      variant: "destructive",
+      description: "Something went wrong. Please try again later.",
+    });
   }
 
   public render() {
