@@ -5,7 +5,7 @@ import { UserRegistration, UserProfile } from "../types";
 import { useToast } from "./useToast";
 
 export const useAutoRegistration = () => {
-  const { isConnected, publicKey } = useWalletConnection();
+  const { isConnected, publicKey, ready } = useWalletConnection();
   const { error: showError } = useToast();
   const [showRegistrationDialog, setShowRegistrationDialog] = useState(false);
   const [user, setUser] = useState<UserProfile | null>(null);
@@ -58,16 +58,58 @@ export const useAutoRegistration = () => {
 
   useEffect(() => {
     const initializeUser = async () => {
-      if (isConnected && publicKey && !user && !isLoading) {
+      console.log("Initialize user effect running with state:", {
+        ready,
+        isConnected,
+        publicKey,
+        isLoading,
+        hasUser: !!user,
+      });
+
+      if (!ready) {
+        console.log("Privy not ready yet, waiting...");
+        return;
+      }
+
+      if (isLoading) {
+        console.log("Loading in progress, skipping initialization");
+        return;
+      }
+
+      if (!publicKey) {
+        console.log("No public key available, skipping initialization");
+        return;
+      }
+
+      console.log("Starting user existence check for:", publicKey);
+      try {
         const exists = await checkUserExists(publicKey);
+        console.log("User existence check result:", exists);
+
         if (!exists) {
+          console.log("User does not exist, showing registration dialog");
           setShowRegistrationDialog(true);
+        } else {
+          console.log("User exists, no registration needed");
         }
+      } catch (err) {
+        console.error("Failed to check user:", err);
+        showError(
+          "Could not verify user status. Please try refreshing the page."
+        );
       }
     };
 
     initializeUser();
-  }, [isConnected, publicKey, user, isLoading, checkUserExists]);
+  }, [
+    ready,
+    isConnected,
+    publicKey,
+    user,
+    isLoading,
+    checkUserExists,
+    showError,
+  ]);
 
   return {
     isLoading,

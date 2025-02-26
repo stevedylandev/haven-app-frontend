@@ -1,7 +1,8 @@
 import { useState } from "react";
 import { ApiResponse, UserProfile, ProfileUpdateRequest } from "../types";
+import { API_BASE_URL } from "../utils/api";
 
-const BASE_URL = "/api/user";
+const BASE_URL = `${API_BASE_URL}/user`;
 
 export const useProfile = (userId: string) => {
   const [isLoading, setIsLoading] = useState(false);
@@ -11,7 +12,13 @@ export const useProfile = (userId: string) => {
     setIsLoading(true);
     setError(null);
     try {
-      const response = await fetch(`${BASE_URL}/${userId}/profile`);
+      const response = await fetch(`${BASE_URL}/${userId}/profile`, {
+        method: "GET",
+        headers: {
+          Accept: "application/json",
+        },
+        mode: "cors",
+      });
       const data: ApiResponse<UserProfile> = await response.json();
 
       if (data.HttpCode !== 200) {
@@ -37,7 +44,9 @@ export const useProfile = (userId: string) => {
         method: "PUT",
         headers: {
           "Content-Type": "application/json",
+          Accept: "application/json",
         },
+        mode: "cors",
         body: JSON.stringify(updates),
       });
 

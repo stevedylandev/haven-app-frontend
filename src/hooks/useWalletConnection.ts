@@ -4,11 +4,11 @@ export const useWalletConnection = () => {
   const { login, logout, authenticated, ready, user } = usePrivy();
 
   return {
-    isConnected: authenticated,
+    isConnected: ready && authenticated,
     isConnecting: !ready,
-    publicKey: user?.wallet?.address,
+    publicKey: user?.wallet?.address || null,
+    ready,
     login,
     logout,
-    // Removed makeTestTransaction as it was specific to Solana
   };
 };
