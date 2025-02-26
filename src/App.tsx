@@ -1,6 +1,7 @@
 import { useRef, useState, useMemo, useEffect, Suspense } from "react";
+import { useRandomVideoClip } from "./hooks/useRandomVideoClip";
 import { usePrivy } from "@privy-io/react-auth";
-import { Menu, History } from "lucide-react";
+import { Menu, History, RefreshCw } from "lucide-react";
 import UserInfoDialog from "./components/auth/UserInfoDialog";
 import { useAutoRegistration } from "./hooks/useAutoRegistration";
 import { BrowserRouter, Routes, Route, Link } from "react-router-dom";
@@ -44,6 +45,35 @@ const LoadingScreen = () => (
     <div className="animate-pulse text-white/60">Loading application...</div>
   </div>
 );
+
+// Random clip fetching button component
+const RandomClipButton = () => {
+  const { videoClips, loading, error, fetchClips } = useRandomVideoClip();
+
+  useEffect(() => {
+    if (error) {
+      console.error("Failed to fetch random clips:", error);
+    }
+  }, [error]);
+
+  useEffect(() => {
+    if (videoClips.length > 0) {
+      console.log("Random clips fetched:", videoClips);
+    }
+  }, [videoClips]);
+
+  return (
+    <button
+      onClick={fetchClips}
+      disabled={loading}
+      className="px-4 py-2 bg-purple-600 hover:bg-purple-700 active:bg-purple-800 backdrop-blur-sm border border-white/20 rounded transition-all duration-200 focus:ring-2 focus:ring-purple-500 focus:outline-none flex items-center gap-2"
+      aria-label="Fetch random clip"
+    >
+      <RefreshCw className={`h-4 w-4 ${loading ? "animate-spin" : ""}`} />
+      <span>{loading ? "Loading..." : "Random Clip"}</span>
+    </button>
+  );
+};
 
 function AppContent() {
   const endPerformanceMeasure = usePerformanceMonitor("AppContent");
@@ -250,6 +280,10 @@ function AppContent() {
         <span className="text-sm text-white font-medium">Menu</span>
       </button>
 
+      <div className="fixed top-4 left-4 text-center text-white/60 text-sm max-sm:hidden">
+        <RandomClipButton />
+      </div>
+
       <div
         className="sr-only"
         role="status"
@@ -265,7 +299,7 @@ function AppContent() {
         className="fixed max-sm:hidden bottom-1 left-0 right-0 text-center text-white/60 text-sm"
         aria-hidden="true"
       >
-        <div>Swipe left or right to classify the action</div>
+        <div>Swipe right or right to classify the action</div>
       </div>
 
       <div className="fixed bottom-4 right-4 flex gap-4 text-xs text-white/40 max-sm:hidden">
