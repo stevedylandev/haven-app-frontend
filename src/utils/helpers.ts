@@ -1,3 +1,23 @@
+type DebouncedFunction<T extends unknown[]> = (...args: T) => void;
+
+export function debounce<T extends unknown[]>(
+  func: (...args: T) => unknown,
+  wait: number
+): DebouncedFunction<T> {
+  let timeout: NodeJS.Timeout | null = null;
+
+  return (...args: T) => {
+    if (timeout) {
+      clearTimeout(timeout);
+    }
+
+    timeout = setTimeout(() => {
+      func(...args);
+      timeout = null;
+    }, wait);
+  };
+}
+
 export const truncateAddress = (address: string): string => {
   if (!address) return "";
   if (address.length <= 10) return address;
@@ -13,6 +33,7 @@ export const formatPoints = (points: number): string => {
   }
   return points.toString();
 };
+
 export function sample<T>(array: T[]): T | undefined {
   if (array.length === 0) return undefined;
   const randomIndex = Math.floor(Math.random() * array.length);

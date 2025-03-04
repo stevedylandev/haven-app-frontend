@@ -1,102 +1,47 @@
-import {
-  lazy,
-  ComponentType,
-  ForwardRefExoticComponent,
-  RefAttributes,
-} from "react";
-import type { SwipeCardProps, SwipeCardPublicMethods } from "../SwipeCard";
-import type { UserReward, UserProfile } from "../../types";
+import { lazy } from "react";
 
-interface MenuDrawerProps {
-  isOpen: boolean;
-  onClose: () => void;
-  reward: UserReward;
-  showWallet: boolean;
-  authenticated: boolean;
-  ready: boolean;
-  onLogin: () => void;
-  onLogout: () => void;
-  remainingClassifications: number;
-  user: UserProfile | null;
+// Export types
+export interface SwipeCardPublicMethods {
+  setIsVideoLoaded: (isLoaded: boolean) => void;
 }
 
-export const PointsDashboard = lazy(() => import("../PointsDashboard"));
-
-interface ShareButtonProps {
-  ipfsId: string;
-}
-
-interface SubmitButtonProps {
-  classificationsCount: number;
-  isShaken: boolean;
-  onSubmit: () => void;
-}
-
-// Helper function for regular components
-function createLazyComponent<T extends object>(
-  importFn: () => Promise<{ [key: string]: ComponentType<T> }>,
-  exportName: string
-) {
-  return lazy(async () => {
-    const module = await importFn();
-    return {
-      default: module[exportName] as ComponentType<T>,
-    };
-  });
-}
-
-// Special helper for forwarded ref components
-function createLazyRefComponent<T extends object, R>(
-  importFn: () => Promise<{
-    [key: string]: ForwardRefExoticComponent<T & RefAttributes<R>>;
-  }>,
-  exportName: string
-) {
-  return lazy(async () => {
-    const module = await importFn();
-    return {
-      default: module[exportName] as ForwardRefExoticComponent<
-        T & RefAttributes<R>
-      >,
-    };
-  });
-}
-
-// Use specialized helper for SwipeCard due to forwardRef
-export const LazySwipeCard = createLazyRefComponent<
-  SwipeCardProps,
-  SwipeCardPublicMethods
->(() => import("../SwipeCard"), "SwipeCard");
-
-// Use regular helper for other components
-export const LazyMenuDrawer = createLazyComponent<MenuDrawerProps>(
-  () => import("../MenuDrawer"),
-  "MenuDrawer"
+// Lazy loaded components
+export const LazySwipeCard = lazy(() =>
+  import("../swipe-card/CardContainer").then((module) => ({
+    default: module.SwipeCard,
+  }))
 );
 
-export const LazyShareButton = createLazyComponent<ShareButtonProps>(
-  () => import("../ShareButton"),
-  "ShareButton"
+export const LazyMenuDrawer = lazy(() =>
+  import("../MenuDrawer").then((module) => ({
+    default: module.MenuDrawer,
+  }))
 );
 
-// For components with no props, use empty object type
-export const LazyAudiusControls = createLazyComponent<Record<never, never>>(
-  () => import("../AudiusControls"),
-  "AudiusControls"
+export const LazyShareButton = lazy(() =>
+  import("../ShareButton").then((module) => ({
+    default: module.ShareButton,
+  }))
+);
+
+export const LazyAudiusControls = lazy(() =>
+  import("../AudiusControls").then((module) => ({
+    default: module.AudiusControls,
+  }))
+);
+
+export const LazySubmitButton = lazy(() =>
+  import("../SubmitButton").then((module) => ({
+    default: module.SubmitButton,
+  }))
 );
 
 export const LazyDMCA = lazy(() => import("../DMCA"));
 
-export const LazySubmitButton = createLazyComponent<SubmitButtonProps>(
-  () => import("../SubmitButton"),
-  "SubmitButton"
+export const LazyBettingTutorial = lazy(() =>
+  import("../betting/tutorial/BettingTutorial").then((module) => ({
+    default: module.BettingTutorial,
+  }))
 );
 
-// Re-export types for use in App.tsx
-export type {
-  SwipeCardProps,
-  SwipeCardPublicMethods,
-  MenuDrawerProps,
-  ShareButtonProps,
-  SubmitButtonProps,
-};
+export const PointsDashboard = lazy(() => import("../PointsDashboard"));

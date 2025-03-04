@@ -16,6 +16,7 @@ import {
   LazyAudiusControls,
   LazySubmitButton,
   LazyDMCA,
+  LazyBettingTutorial,
   type SwipeCardPublicMethods,
 } from "./components/lazy";
 import { VerifyClips } from "./pages/VerifyClips";
@@ -261,6 +262,7 @@ function AppContent() {
               onSubmit={handleSubmit}
             />
           ) : null}
+          <LazyBettingTutorial />
         </Suspense>
       </ErrorBoundary>
 
