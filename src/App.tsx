@@ -1,6 +1,7 @@
 import { useRef, useState, useMemo, useEffect, Suspense } from "react";
 import { useRandomVideoClip } from "./hooks/useRandomVideoClip";
 import { usePrivy } from "@privy-io/react-auth";
+import { WalletPromptModal } from "./components/auth/WalletPromptModal";
 import { Menu, History, RefreshCw } from "lucide-react";
 import UserInfoDialog from "./components/auth/UserInfoDialog";
 import { useAutoRegistration } from "./hooks/useAutoRegistration";
@@ -125,6 +126,7 @@ function AppContent() {
       setReward,
       setShowWallet,
       resetShake,
+      isConnected: authenticated,
     });
 
   useEffect(() => {
@@ -356,6 +358,7 @@ function AppContent() {
         isOpen={showBetHistory}
         onClose={() => setShowBetHistory(false)}
       />
+      <WalletPromptModal />
     </div>
   );
 }

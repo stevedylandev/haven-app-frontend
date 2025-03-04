@@ -1,12 +1,9 @@
 import { useMemo, useCallback } from "react";
 import { useToast } from "@/hooks/useToast";
-import {
-  storeClassification,
-  setWalletPrompted,
-  setBettingPrompted,
-} from "../utils/storage";
+import { storeClassification, setBettingPrompted } from "../utils/storage";
 import type { Content, UserReward } from "../types";
 import type { SwipeCardPublicMethods } from "../components/lazy";
+import { checkWalletPrompt } from "./useWalletPrompt";
 
 interface UseOptimizedCallbacksProps {
   videoContent: Content[];
@@ -17,6 +14,7 @@ interface UseOptimizedCallbacksProps {
   setReward: (updater: (prev: UserReward) => UserReward) => void;
   setShowWallet: (value: boolean) => void;
   resetShake: () => void;
+  isConnected: boolean;
 }
 
 export function useOptimizedCallbacks({
@@ -28,6 +26,7 @@ export function useOptimizedCallbacks({
   setReward,
   setShowWallet,
   resetShake,
+  isConnected,
 }: UseOptimizedCallbacksProps) {
   const { success, error } = useToast();
 
@@ -61,10 +60,10 @@ export function useOptimizedCallbacks({
 
         setCurrentIndex((prev) => (prev + 1) % videoContent.length);
 
-        // Handle prompts
+        // Handle prompts and check for wallet prompt
+        checkWalletPrompt(isConnected);
+
         if (shouldPromptWallet) {
-          setShowWallet(true);
-          setWalletPrompted();
           success(
             "You've unlocked wallet features! Please connect your wallet to continue."
           );

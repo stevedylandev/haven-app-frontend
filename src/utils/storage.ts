@@ -62,3 +62,8 @@ export function clearClassifications(): void {
   storage.lastSubmitted = Date.now();
   localStorage.setItem(STORAGE_KEY, JSON.stringify(storage));
 }
+
+export function resetWalletPrompt(): void {
+  localStorage.removeItem(WALLET_PROMPTED_KEY);
+  localStorage.setItem(CLIP_COUNT_KEY, "0");
+}
