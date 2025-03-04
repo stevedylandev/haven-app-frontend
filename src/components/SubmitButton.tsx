@@ -59,9 +59,6 @@ export function SubmitButton({
       const txHash = "0x123abc..."; // Replace with actual transaction hash
       const explorerLink = `https://explorer.testnet.near.org/transactions/${txHash}`; // Replace with appropriate explorer URL
 
-      // Disconnect after successful submission
-      await logout();
-
       // Show success toast with transaction link
       success(
         <div className="flex flex-col gap-2">
@@ -80,7 +77,11 @@ export function SubmitButton({
         </div>
       );
 
+      // Ensure all operations are complete before disconnecting
       onSubmit();
+
+      // Disconnect wallet after successful submission
+      await logout();
     } catch (err) {
       console.error("Failed to submit classifications:", err);
       error("Failed to submit classifications. Please try again.");
