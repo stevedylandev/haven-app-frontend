@@ -20,6 +20,8 @@ interface MenuDrawerProps {
   user: UserProfile | null;
 }
 
+export const PointsDashboard = lazy(() => import("../PointsDashboard"));
+
 interface ShareButtonProps {
   ipfsId: string;
 }

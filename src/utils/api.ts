@@ -3,6 +3,8 @@ import {
   RandomVideoClipResponse,
   UserRegistration,
   UserProfile,
+  PointsHistory,
+  ContributionHistory,
 } from "../types";
 
 console.log("Initializing API with base URL");
@@ -91,6 +93,52 @@ export async function getUserByWallet(
   }
 
   throw new Error("Max retries exceeded");
+}
+
+export async function getPointsHistory(
+  userId: string
+): Promise<ApiResponse<PointsHistory>> {
+  const response = await fetch(
+    `${API_BASE_URL}/user/${userId}/points-history`,
+    {
+      method: "GET",
+      headers: {
+        Accept: "application/json",
+      },
+      mode: "cors",
+    }
+  );
+
+  const data = await response.json();
+
+  if (!response.ok) {
+    throw new Error(data.error || "Failed to fetch points history");
+  }
+
+  return data;
+}
+
+export async function getContributionHistory(
+  userId: string
+): Promise<ApiResponse<ContributionHistory>> {
+  const response = await fetch(
+    `${API_BASE_URL}/user/${userId}/contribution-history`,
+    {
+      method: "GET",
+      headers: {
+        Accept: "application/json",
+      },
+      mode: "cors",
+    }
+  );
+
+  const data = await response.json();
+
+  if (!response.ok) {
+    throw new Error(data.error || "Failed to fetch contribution history");
+  }
+
+  return data;
 }
 
 export async function registerUser(

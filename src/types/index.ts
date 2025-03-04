@@ -74,6 +74,40 @@ export interface ProfileUpdateRequest {
   ethereumAddress?: string;
 }
 
+export interface PointsTransaction {
+  id: string;
+  amount: number;
+  source: "LABELING" | "BETTING" | "BONUS" | "PENALTY";
+  timestamp: string;
+  description: string;
+}
+
+export interface PointsHistory {
+  totalPoints: number;
+  transactions: PointsTransaction[];
+}
+
+export interface Contribution {
+  id: string;
+  type: "LABEL" | "VERIFICATION";
+  clipId: string;
+  action: string;
+  pointsEarned: number;
+  timestamp: string;
+  consensusMatch?: boolean;
+}
+
+export interface ContributionHistory {
+  totalContributions: number;
+  contributions: Contribution[];
+  accuracy: number;
+  achievements: {
+    totalLabels: number;
+    correctConsensus: number;
+    winningStreak: number;
+  };
+}
+
 export interface UserProfile {
   id: string;
   userName: string;

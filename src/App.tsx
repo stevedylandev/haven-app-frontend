@@ -20,6 +20,7 @@ import {
 import { VerifyClips } from "./pages/VerifyClips";
 import RegisterPage from "./pages/Register";
 import BettingHistory from "./pages/BettingHistory";
+import PointsOverview from "./pages/PointsOverview";
 import { useOptimizedCallbacks } from "./hooks/useOptimizedCallbacks";
 import { usePerformanceMonitor } from "./utils/performance";
 import { useShakeDetection } from "./hooks/useShakeDetection";
@@ -396,6 +397,14 @@ function App() {
             element={
               <Suspense fallback={<LoadingSpinner />}>
                 <BettingHistory authenticated={authenticated} />
+              </Suspense>
+            }
+          />
+          <Route
+            path="/points"
+            element={
+              <Suspense fallback={<LoadingSpinner />}>
+                <PointsOverview />
               </Suspense>
             }
           />

@@ -1,6 +1,6 @@
 import { RewardDisplay } from "./RewardDisplay";
 import { UserReward, UserProfile } from "../types";
-import { X, LogOut, LogIn, MessageSquare, Send } from "lucide-react";
+import { X, LogOut, LogIn, MessageSquare, Send, Medal } from "lucide-react";
 import { Link } from "react-router-dom";
 import UserProfileDisplay from "./auth/UserProfileDisplay";
 import {
@@ -64,7 +64,15 @@ const MenuContent = ({
         {authenticated && user && (
           <div className="space-y-4">
             <h3 className="text-lg font-semibold text-white">Profile</h3>
-            <UserProfileDisplay user={user} />
+            <UserProfileDisplay user={user} onProfileUpdate={() => {}} />
+            <Link
+              to="/points"
+              onClick={onClose}
+              className="flex items-center gap-2 px-4 py-2 bg-white/10 hover:bg-white/20 rounded transition-colors"
+            >
+              <Medal className="h-4 w-4 text-yellow-400" />
+              <span>Points Dashboard</span>
+            </Link>
           </div>
         )}
 
