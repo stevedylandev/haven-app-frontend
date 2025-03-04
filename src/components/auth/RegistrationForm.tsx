@@ -10,7 +10,7 @@ const RegistrationForm = () => {
     userName: "",
     email: "",
     password: "",
-    roleType: "AI_LABLER",
+    roleType: "HUMAN_LABELER",
     ethereumAddress: "",
   });
 

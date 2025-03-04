@@ -18,8 +18,14 @@ const UserProfileDisplay = ({
       <div className="space-y-2">
         <div className="flex items-center justify-between">
           <h3 className="text-lg font-semibold">{user.userName}</h3>
-          <span className="px-2 py-1 text-xs bg-blue-500/20 rounded-full">
-            {user.roleType}
+          <span
+            className={`px-2 py-1 text-xs rounded-full ${
+              user.roleType === "HUMAN_LABELER"
+                ? "bg-emerald-500/30 text-emerald-200"
+                : "bg-blue-500/20 text-blue-200"
+            }`}
+          >
+            {user.roleType === "HUMAN_LABELER" ? "Human Labeler" : "AI Labeler"}
           </span>
         </div>
 
