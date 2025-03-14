@@ -7,7 +7,7 @@ export interface SwipeCardPublicMethods {
 
 // Lazy loaded components
 export const LazySwipeCard = lazy(() =>
-  import("../swipe-card/CardContainer").then((module) => ({
+  import("../SwipeCard").then((module) => ({
     default: module.SwipeCard,
   }))
 );

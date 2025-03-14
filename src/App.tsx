@@ -1,5 +1,4 @@
 import { useRef, useState, useMemo, useEffect, Suspense } from "react";
-import { useRandomVideoClip } from "./hooks/useRandomVideoClip";
 import { usePrivy } from "@privy-io/react-auth";
 import { WalletPromptModal } from "./components/auth/WalletPromptModal";
 import { Menu, History, RefreshCw } from "lucide-react";
@@ -26,7 +25,7 @@ import PointsOverview from "./pages/PointsOverview";
 import { useOptimizedCallbacks } from "./hooks/useOptimizedCallbacks";
 import { usePerformanceMonitor } from "./utils/performance";
 import { useShakeDetection } from "./hooks/useShakeDetection";
-import { useVideoContent } from "./hooks/useVideoContent";
+import { useRandomVideoClip } from "./hooks/useRandomVideoClip";
 
 // Loading components
 const LoadingSpinner = () => (
@@ -82,12 +81,18 @@ function AppContent() {
   const endPerformanceMeasure = usePerformanceMonitor("AppContent");
 
   const {
-    content: videoContent,
+    videoClips,
     loading: isLoading,
     error: errorMessage,
-  } = useVideoContent();
+    fetchClips,
+  } = useRandomVideoClip();
 
-  console.log("Video content:", videoContent);
+  // Fetch initial clips
+  useEffect(() => {
+    fetchClips();
+  }, [fetchClips]);
+
+  console.log("Video content:", videoClips);
 
   const [currentIndex, setCurrentIndex] = useState(0);
   const [reward, setReward] = useState({
@@ -113,13 +118,15 @@ function AppContent() {
   } = useAutoRegistration();
 
   const currentContent = useMemo(
-    () => videoContent[currentIndex],
-    [videoContent, currentIndex]
+    () => videoClips[currentIndex],
+    [videoClips, currentIndex]
   );
+
+  console.log(currentContent, "currentContent");
 
   const { handleSwipe, handleSubmit, remainingClassifications } =
     useOptimizedCallbacks({
-      videoContent,
+      videoContent: videoClips,
       currentContent,
       reward,
       swipeCardRef,
@@ -238,7 +245,7 @@ function AppContent() {
             user={user}
           />
           <LazyAudiusControls />
-          {videoContent.length > 0 && currentContent && (
+          {videoClips.length > 0 && currentContent && (
             <LazySwipeCard
               ref={swipeCardRef}
               content={currentContent}
@@ -255,6 +262,16 @@ function AppContent() {
               disabled={shouldDisableSwipe}
             />
           )}
+          {/* <div className="border border-red-500 absolute left-[50%] top-[50%]">
+            <video
+              id="current-video"
+              autoPlay
+              muted
+              controls
+              playsInline
+              src={currentContent?.url}
+            />
+          </div> */}
           {reward.classificationsCount >= 50 || shaken ? (
             <LazySubmitButton
               classificationsCount={reward.classificationsCount}

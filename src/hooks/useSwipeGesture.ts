@@ -61,16 +61,29 @@ export const useSwipeGesture = ({
   const handleTouchMove = (e: React.TouchEvent | React.MouseEvent) => {
     if (!isDragging || isExpanded || disabled) return;
 
-    const clientX = "touches" in e ? e.touches[0].clientX : e.clientX;
-    currentX = clientX - startX;
+    // Prevent default to stop scrolling
+    e.preventDefault();
+
+    // Handle touch and mouse events separately
+    if ("touches" in e) {
+      currentX = e.touches[0].clientX - startX;
+    } else if ("clientX" in e && !("touches" in e)) {
+      currentX = e.clientX - startX;
+    } else {
+      return;
+    }
+
     isSwiping = true;
 
-    // Apply resistance as the card is dragged further
-    const resistance = Math.abs(currentX) > 100 ? 0.5 : 1;
+    // Apply non-linear resistance as the card is dragged further
+    const resistance = Math.min(1, Math.pow(0.95, Math.abs(currentX) / 50));
     const dampedX = currentX * resistance;
 
     // Animate the card position
-    api.start({ x: dampedX });
+    api.start({
+      x: dampedX,
+      immediate: true, // Remove animation lag
+    });
 
     // Optional: Add subtle haptic feedback during drag
     if (Math.abs(currentX) % 50 === 0) {

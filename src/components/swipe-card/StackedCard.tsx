@@ -1,12 +1,25 @@
 import React from "react";
-import { animated, useSpring } from "@react-spring/web";
-import { motion, useMotionValue, useTransform } from "framer-motion";
+import { animated, useSpring, to, SpringValue } from "@react-spring/web";
 import { Content, UserReward } from "../../types";
 import { Card } from "@/components/ui/card";
 import { MediaDisplay } from "./MediaDisplay";
 import { BettingIndicator } from "./BettingIndicator";
 import { FloatingParticles } from "./FloatingParticles";
 import { InfoOverlay } from "./InfoOverlay";
+
+interface SwipeHandlers {
+  onTouchStart: (e: React.TouchEvent | React.MouseEvent) => void;
+  onTouchMove: (e: React.TouchEvent | React.MouseEvent) => void;
+  onTouchEnd: () => void;
+  onMouseDown: (e: React.MouseEvent) => void;
+  onMouseMove: (e: React.MouseEvent) => void;
+  onMouseUp: () => void;
+  onMouseLeave: () => void;
+  onClick: (e: React.MouseEvent) => void;
+  style?: {
+    x: SpringValue<number>;
+  };
+}
 
 interface StackedCardProps {
   content: Content;
@@ -21,16 +34,7 @@ interface StackedCardProps {
   videoRef: React.RefObject<HTMLVideoElement>;
   onVideoLoad: () => void;
   reward: UserReward;
-  handlers: {
-    onTouchStart: (e: React.TouchEvent | React.MouseEvent) => void;
-    onTouchMove: (e: React.TouchEvent | React.MouseEvent) => void;
-    onTouchEnd: () => void;
-    onMouseDown: (e: React.MouseEvent) => void;
-    onMouseMove: (e: React.MouseEvent) => void;
-    onMouseUp: () => void;
-    onMouseLeave: () => void;
-    onClick: (e: React.MouseEvent) => void;
-  };
+  handlers: SwipeHandlers;
 }
 
 export const StackedCard: React.FC<StackedCardProps> = ({
@@ -48,23 +52,13 @@ export const StackedCard: React.FC<StackedCardProps> = ({
   reward,
   handlers,
 }) => {
-  // Motion values for interactive animations
-  const x = useMotionValue(0);
-  const scale = useTransform(x, [-200, 0, 200], [0.8, 1, 0.8]);
-  const dragOpacity = useTransform(
-    x,
-    [-300, -200, 0, 200, 300],
-    [0.3, 0.7, 1, 0.7, 0.3]
-  );
-  // Spring animations
+  // Main spring animation for card positioning and stacking
   const springStyle = useSpring({
-    transform: `
-      translateY(${isActive ? 0 : index * 20}px)
-      scale(${isActive ? 1 : 0.95 - index * 0.05})
-      translateX(${
-        swipeDirection === "left" ? -500 : swipeDirection === "right" ? 500 : 0
-      }px)
-    `,
+    x: isActive ? handlers.style?.x || 0 : 0,
+    y: isActive ? 0 : index * 20,
+    scale: isActive ? 1 : 0.95 - index * 0.05,
+    translateX:
+      swipeDirection === "left" ? -500 : swipeDirection === "right" ? 500 : 0,
     opacity: isActive
       ? swipeDirection
         ? 0 // Fade out when swiping
@@ -74,29 +68,50 @@ export const StackedCard: React.FC<StackedCardProps> = ({
     config: {
       tension: 500,
       friction: 30,
-      // Slower animation for opacity to create smooth fade
-      opacity: { tension: 200, friction: 20 },
     },
+  });
+
+  // Calculate derived values for drag interactions
+  const dragScale = to([springStyle.x], (x) => {
+    const progress = Math.abs(x) / 200;
+    return 1 - progress * 0.2; // Scale down to 0.8 at max drag
+  });
+
+  const dragOpacity = to([springStyle.x], (x) => {
+    const progress = Math.abs(x) / 300;
+    return 1 - progress * 0.7; // Fade to 0.3 at max drag
   });
 
   return (
     <animated.div
-      style={{
-        position: "absolute",
-        width: "100%",
-        height: "100%",
-        willChange: "transform",
-        ...springStyle,
-      }}
-    >
-      <motion.div
-        style={{
+      style={
+        {
+          position: "absolute",
           width: "100%",
           height: "100%",
-          x: isActive ? x : 0,
-          scale: isActive ? scale : 1,
-          opacity: isActive ? dragOpacity : 1,
-        }}
+          willChange: "transform",
+          transform: to(
+            [
+              springStyle.x,
+              springStyle.y,
+              springStyle.scale,
+              springStyle.translateX,
+            ],
+            (x, y, s, tx) => `translate3d(${x + tx}px, ${y}px, 0) scale(${s})`
+          ),
+          opacity: springStyle.opacity,
+        } as const
+      }
+    >
+      <animated.div
+        style={
+          {
+            width: "100%",
+            height: "100%",
+            transform: to([dragScale], (s) => `scale(${isActive ? s : 1})`),
+            opacity: isActive ? dragOpacity : 1,
+          } as const
+        }
       >
         <Card
           className={`relative w-full h-full border-none sm:rounded-xl backdrop-blur-[6px] bg-black/40 ${
@@ -111,7 +126,18 @@ export const StackedCard: React.FC<StackedCardProps> = ({
             background:
               "linear-gradient(135deg, rgba(255,255,255,0.1), rgba(255,255,255,0.05))",
           }}
-          {...(isActive ? handlers : {})}
+          {...(isActive
+            ? {
+                onTouchStart: handlers.onTouchStart,
+                onTouchMove: handlers.onTouchMove,
+                onTouchEnd: handlers.onTouchEnd,
+                onMouseDown: handlers.onMouseDown,
+                onMouseMove: handlers.onMouseMove,
+                onMouseUp: handlers.onMouseUp,
+                onMouseLeave: handlers.onMouseLeave,
+                onClick: handlers.onClick,
+              }
+            : {})}
         >
           <MediaDisplay
             content={content}
@@ -132,7 +158,7 @@ export const StackedCard: React.FC<StackedCardProps> = ({
           )}
           <FloatingParticles />
         </Card>
-      </motion.div>
+      </animated.div>
     </animated.div>
   );
 };
