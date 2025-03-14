@@ -2,14 +2,16 @@ import { useState } from "react";
 import { Dialog } from "@headlessui/react";
 import { useWalletConnection } from "../../hooks/useWalletConnection";
 import { setWalletPrompted } from "../../utils/storage";
-import { useClipCount } from "../../hooks/useClipCount";
 import { useWalletPrompt } from "../../hooks/useWalletPrompt";
 
 export function WalletPromptModal() {
   const { login, isConnected } = useWalletConnection();
-  const clipCount = useClipCount();
-  const shouldShowPrompt = useWalletPrompt(isConnected);
+  const walletState = useWalletPrompt(isConnected);
   const [isClosing, setIsClosing] = useState(false);
+
+  // Only show soft prompt if not already at hard prompt stage
+  const showDialog =
+    walletState.showSoftPrompt && !walletState.showHardPrompt && !isClosing;
 
   const handleClose = () => {
     setIsClosing(true);
@@ -37,12 +39,13 @@ export function WalletPromptModal() {
     }, 200);
   };
 
+  // Don't show soft prompt if hard prompt is needed
+  if (walletState.showHardPrompt) {
+    return null;
+  }
+
   return (
-    <Dialog
-      open={shouldShowPrompt && !isClosing}
-      onClose={handleClose}
-      className="relative z-50"
-    >
+    <Dialog open={showDialog} onClose={handleClose} className="relative z-50">
       <div className="fixed inset-0 bg-black/30" aria-hidden="true" />
 
       <div className="fixed inset-0 flex w-screen items-center justify-center p-4">
@@ -54,7 +57,7 @@ export function WalletPromptModal() {
           <div className="mt-4">
             <div className="mb-4">
               <div className="text-sm text-gray-500">
-                You've viewed {clipCount}/25 clips! 🎉
+                You've viewed {walletState.clipCount}/50 clips! 🎉
               </div>
               <div className="mt-2 text-sm text-gray-500">
                 Connect your wallet to:

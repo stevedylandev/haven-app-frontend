@@ -260,6 +260,9 @@ function AppContent() {
               onSwipe={handleSwipe}
               reward={reward}
               disabled={shouldDisableSwipe}
+              isWalletConnected={authenticated}
+              onConnectWallet={login}
+              isConnectingWallet={!ready}
             />
           )}
           {/* <div className="border border-red-500 absolute left-[50%] top-[50%]">

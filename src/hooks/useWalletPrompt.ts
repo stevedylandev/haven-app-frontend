@@ -1,12 +1,30 @@
 import { useEffect, useState } from "react";
-import { getClipCount, wasWalletPrompted } from "../utils/storage";
+import {
+  getClipCount,
+  wasWalletPrompted,
+  isWalletRequired,
+} from "../utils/storage";
 
-type WalletPromptListener = () => void;
+interface WalletPromptState {
+  showSoftPrompt: boolean; // Show warning at 25 clips
+  showHardPrompt: boolean; // Show blocking modal at 50 clips
+  isRequired: boolean; // Wallet is required (50+ clips)
+  clipCount: number; // Current clip count
+  blockNavigation: boolean; // Block navigation when required
+}
+
+type WalletPromptListener = (state: WalletPromptState) => void;
 const listeners: WalletPromptListener[] = [];
 let lastCheckTime = 0;
 
-// Singleton to track if we should show the prompt
-let shouldShowPrompt = false;
+// Singleton to track wallet prompt state
+let walletPromptState: WalletPromptState = {
+  showSoftPrompt: false,
+  showHardPrompt: false,
+  isRequired: false,
+  clipCount: 0,
+  blockNavigation: false,
+};
 
 export function checkWalletPrompt(isConnected: boolean) {
   const now = Date.now();
@@ -15,20 +33,35 @@ export function checkWalletPrompt(isConnected: boolean) {
 
   lastCheckTime = now;
   const count = getClipCount();
-  const shouldPrompt = !isConnected && count >= 25 && !wasWalletPrompted();
+  const required = isWalletRequired();
 
-  if (shouldPrompt !== shouldShowPrompt) {
-    shouldShowPrompt = shouldPrompt;
-    listeners.forEach((listener) => listener());
+  const newState: WalletPromptState = {
+    showSoftPrompt:
+      !isConnected && count >= 25 && count < 50 && !wasWalletPrompted(),
+    showHardPrompt: !isConnected && count >= 50,
+    isRequired: required,
+    clipCount: count,
+    blockNavigation: required && !isConnected,
+  };
+
+  if (JSON.stringify(newState) !== JSON.stringify(walletPromptState)) {
+    walletPromptState = newState;
+    listeners.forEach((listener) => listener(walletPromptState));
   }
 }
 
-export function useWalletPrompt(isConnected: boolean) {
-  const [shouldShow, setShouldShow] = useState(false);
+export function useWalletPrompt(isConnected: boolean): WalletPromptState {
+  const [state, setState] = useState<WalletPromptState>({
+    showSoftPrompt: false,
+    showHardPrompt: false,
+    isRequired: false,
+    clipCount: 0,
+    blockNavigation: false,
+  });
 
   useEffect(() => {
-    const listener = () => {
-      setShouldShow(shouldShowPrompt);
+    const listener = (newState: WalletPromptState) => {
+      setState(newState);
     };
 
     listeners.push(listener);
@@ -49,5 +82,5 @@ export function useWalletPrompt(isConnected: boolean) {
     };
   }, [isConnected]);
 
-  return shouldShow;
+  return state;
 }

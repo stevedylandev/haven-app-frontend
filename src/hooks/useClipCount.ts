@@ -1,21 +1,28 @@
-import { useState, useEffect } from "react";
-import { getClipCount } from "../utils/storage";
+import { useEffect, useState } from "react";
+import {
+  getClipCount,
+  addClipCountListener,
+  removeClipCountListener,
+} from "../utils/storage";
 
-export function useClipCount() {
-  const [clipCount, setClipCount] = useState(getClipCount);
+/**
+ * Hook to track the user's total clip count
+ * @returns current clip count
+ */
+export function useClipCount(): number {
+  const [count, setCount] = useState(getClipCount());
 
   useEffect(() => {
-    // Check immediately on mount
-    setClipCount(getClipCount());
+    const listener = (newCount: number) => {
+      setCount(newCount);
+    };
 
-    // Create an interval to check for changes
-    const interval = setInterval(() => {
-      const currentCount = getClipCount();
-      setClipCount(currentCount);
-    }, 1000); // Check every second for better responsiveness
+    addClipCountListener(listener);
 
-    return () => clearInterval(interval);
+    return () => {
+      removeClipCountListener(listener);
+    };
   }, []);
 
-  return clipCount;
+  return count;
 }
