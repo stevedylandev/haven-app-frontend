@@ -18,7 +18,7 @@ export async function getAudiusHost(): Promise<string | null> {
   if (cachedHost) return cachedHost;
 
   try {
-    const hosts = await fetch("https://api.audius.co")
+    const hosts = await fetch("/audius")
       .then((r) => r.json())
       .then((j) => j.data);
 

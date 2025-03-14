@@ -101,15 +101,7 @@ export const useAutoRegistration = () => {
     };
 
     initializeUser();
-  }, [
-    ready,
-    isConnected,
-    publicKey,
-    user,
-    isLoading,
-    checkUserExists,
-    showError,
-  ]);
+  }, [ready, isConnected, isLoading]);
 
   return {
     isLoading,

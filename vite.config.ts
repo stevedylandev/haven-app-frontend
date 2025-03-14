@@ -13,4 +13,13 @@ export default defineConfig({
       buffer: "buffer",
     },
   },
+  server: {
+    proxy: {
+      "/audius": {
+        target: "https://api.audius.co",
+        changeOrigin: true,
+        rewrite: (path) => path.replace(/^\/audius/, ""),
+      },
+    },
+  },
 });
