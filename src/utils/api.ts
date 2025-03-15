@@ -9,7 +9,8 @@ import {
 
 console.log("Initializing API with base URL");
 // export const API_BASE_URL = "http://localhost:3000/api";
-export const API_BASE_URL = "http://103.179.45.246/api";
+// export const API_BASE_URL = "http://103.179.45.246/api";
+export const API_BASE_URL = "https://kong-42d942b313uskmmab.kongcloud.dev/api";
 console.log("API_BASE_URL:", API_BASE_URL);
 
 // Verify API is reachable
