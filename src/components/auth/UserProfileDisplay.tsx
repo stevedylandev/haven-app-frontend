@@ -13,6 +13,7 @@ const UserProfileDisplay = ({
   onProfileUpdate,
 }: UserProfileDisplayProps) => {
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
+  console.log("user", user);
   return (
     <div className="bg-white/10 backdrop-blur-sm border border-white/20 rounded-lg p-4 text-white">
       <div className="space-y-2">

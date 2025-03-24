@@ -2,12 +2,12 @@ import { useRef, useState, useMemo, useEffect, Suspense } from "react";
 import { usePrivy } from "@privy-io/react-auth";
 import { WalletPromptModal } from "./components/auth/WalletPromptModal";
 import { Menu, History, RefreshCw } from "lucide-react";
-import UserInfoDialog from "./components/auth/UserInfoDialog";
 import { useAutoRegistration } from "./hooks/useAutoRegistration";
 import { BrowserRouter, Routes, Route, Link } from "react-router-dom";
 import { Providers } from "./components/providers/Providers";
 import { ErrorBoundary } from "./components/common/ErrorBoundary";
 import { BetHistoryDialog } from "./components/betting";
+import RegistrationForm from "./components/auth/RegistrationForm";
 import {
   LazySwipeCard,
   LazyMenuDrawer,
@@ -92,8 +92,6 @@ function AppContent() {
     fetchClips();
   }, [fetchClips]);
 
-  console.log("Video content:", videoClips);
-
   const [currentIndex, setCurrentIndex] = useState(0);
   const [reward, setReward] = useState({
     points: 0,
@@ -121,8 +119,6 @@ function AppContent() {
     () => videoClips[currentIndex],
     [videoClips, currentIndex]
   );
-
-  console.log(currentContent, "currentContent");
 
   const { handleSwipe, handleSubmit, remainingClassifications } =
     useOptimizedCallbacks({
@@ -217,11 +213,12 @@ function AppContent() {
       role="main"
     >
       {showRegistrationDialog && (
-        <UserInfoDialog
+        <RegistrationForm
+          isDialog
           isOpen={showRegistrationDialog}
           onClose={closeRegistrationDialog}
           onSubmit={handleRegistration}
-          ethereumAddress={user?.ethereumAddress || ""}
+          defaultRole="HUMAN_LABELER"
         />
       )}
       {isRegistering && (
@@ -265,16 +262,6 @@ function AppContent() {
               isConnectingWallet={!ready}
             />
           )}
-          {/* <div className="border border-red-500 absolute left-[50%] top-[50%]">
-            <video
-              id="current-video"
-              autoPlay
-              muted
-              controls
-              playsInline
-              src={currentContent?.url}
-            />
-          </div> */}
           {reward.classificationsCount >= 50 || shaken ? (
             <LazySubmitButton
               classificationsCount={reward.classificationsCount}

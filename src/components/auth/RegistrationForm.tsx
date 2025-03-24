@@ -1,183 +1,304 @@
-import { useState } from "react";
-import { UserRegistration } from "../../types";
-import { registerUser } from "../../utils/api";
-import { useToast } from "../../hooks/useToast";
+import { useState, useEffect, useMemo } from "react";
+import { useToast } from "@/hooks/useToast";
+import { useWalletConnection } from "@/hooks/useWalletConnection";
+import { Badge } from "../ui/badge";
+import { Button } from "../ui/button";
+import { Card } from "../ui/card";
+import { Input } from "../ui/input";
+import { Checkbox } from "../ui/checkbox";
+import { Label } from "../ui/label";
+import { Dialog, DialogContent } from "../ui/dialog";
+import { z } from "zod";
+import { registerUser } from "@/utils/api";
+import { PasswordStrengthMeter } from "./PasswordStrengthMeter";
+import { cn } from "@/lib/utils";
+import { RoleType, UserRegistration } from "@/types";
 
-const RegistrationForm = () => {
-  const { error: showError, success } = useToast();
+const registrationSchema = z.object({
+  userName: z.string().min(3, "Username must be at least 3 characters"),
+  email: z.string().email("Invalid email address"),
+  password: z.string().min(8, "Password must be at least 8 characters"),
+  roleType: z.enum(["HUMAN_LABELER", "AI_LABLER", "ADMIN"] as const),
+  ethereumAddress: z
+    .string()
+    .regex(/^0x[a-fA-F0-9]{40}$/, "Invalid Ethereum address"),
+  acceptedTerms: z
+    .boolean()
+    .refine((val) => val === true, "You must accept the terms"),
+});
+
+type RegistrationFormData = Omit<
+  z.infer<typeof registrationSchema>,
+  "roleType"
+> & {
+  roleType: RoleType;
+  acceptedTerms: boolean;
+};
+
+interface RegistrationFormProps {
+  isDialog?: boolean;
+  isOpen?: boolean;
+  onClose?: () => void;
+  onSubmit?: (data: UserRegistration) => Promise<void>;
+  defaultRole?: RoleType;
+}
+
+const RegistrationForm = ({
+  isDialog = false,
+  isOpen = false,
+  onClose,
+  onSubmit,
+  defaultRole = "HUMAN_LABELER",
+}: RegistrationFormProps) => {
+  const { success, error } = useToast();
+  const { isConnected, publicKey, login } = useWalletConnection();
   const [isLoading, setIsLoading] = useState(false);
-  const [formData, setFormData] = useState<UserRegistration>({
+  const [errors, setErrors] = useState<
+    Partial<Record<keyof RegistrationFormData, string>>
+  >({});
+
+  const [formData, setFormData] = useState<RegistrationFormData>({
     userName: "",
     email: "",
     password: "",
-    roleType: "HUMAN_LABELER",
+    roleType: defaultRole,
     ethereumAddress: "",
+    acceptedTerms: false,
   });
 
+  // Update Ethereum address when wallet is connected
+  useEffect(() => {
+    if (isConnected && publicKey) {
+      setFormData((prev) => ({
+        ...prev,
+        ethereumAddress: publicKey,
+      }));
+    }
+  }, [isConnected, publicKey]);
+
   const handleChange = (
-    e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
+    field: keyof RegistrationFormData,
+    value: string | boolean
   ) => {
-    const { name, value } = e.target;
     setFormData((prev) => ({
       ...prev,
-      [name]: value,
+      [field]: value,
     }));
+    // Clear error when field is modified
+    if (errors[field]) {
+      setErrors((prev) => ({
+        ...prev,
+        [field]: undefined,
+      }));
+    }
   };
 
   const validateForm = (): boolean => {
-    if (
-      !formData.userName ||
-      !formData.email ||
-      !formData.password ||
-      !formData.ethereumAddress
-    ) {
-      showError("All fields are required");
+    try {
+      registrationSchema.parse(formData);
+      setErrors({});
+      return true;
+    } catch (error) {
+      if (error instanceof z.ZodError) {
+        const newErrors: typeof errors = {};
+        error.errors.forEach((err) => {
+          const path = err.path[0] as keyof RegistrationFormData;
+          newErrors[path] = err.message;
+        });
+        setErrors(newErrors);
+      }
       return false;
     }
-
-    if (!formData.email.match(/^[^\s@]+@[^\s@]+\.[^\s@]+$/)) {
-      showError("Please enter a valid email address");
-      return false;
-    }
-
-    if (formData.password.length < 8) {
-      showError("Password must be at least 8 characters long");
-      return false;
-    }
-
-    return true;
   };
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
 
     if (!validateForm()) return;
 
     setIsLoading(true);
     try {
-      await registerUser(formData);
-      success("Registration successful!");
+      const registrationData: UserRegistration = {
+        userName: formData.userName,
+        email: formData.email,
+        password: formData.password,
+        roleType: formData.roleType,
+        ethereumAddress: formData.ethereumAddress,
+      };
+
+      if (onSubmit) {
+        await onSubmit(registrationData);
+      } else {
+        await registerUser(registrationData);
+      }
+
+      success("Registration completed successfully!");
+
+      if (onClose) {
+        onClose();
+      }
+
       // Reset form
       setFormData({
         userName: "",
         email: "",
         password: "",
-        roleType: "AI_LABLER",
+        roleType: defaultRole,
         ethereumAddress: "",
+        acceptedTerms: false,
       });
-    } catch (error) {
-      showError(error instanceof Error ? error.message : "Registration failed");
+    } catch (err) {
+      error(
+        err instanceof Error
+          ? err.message
+          : "Registration failed. Please try again later."
+      );
     } finally {
       setIsLoading(false);
     }
   };
 
-  return (
-    <div className="w-full max-w-md mx-auto p-6">
+  const formContent = useMemo(
+    () => (
       <form onSubmit={handleSubmit} className="space-y-4">
-        <div>
-          <label
-            htmlFor="userName"
-            className="block text-sm font-medium text-gray-700"
-          >
-            Username
-          </label>
-          <input
-            type="text"
+        <div className="mb-6 flex items-center justify-between">
+          <h2 className="text-2xl font-bold">Registration</h2>
+          <Badge variant="secondary" className="text-sm">
+            {defaultRole === "HUMAN_LABELER" ? "Human Labeler" : "AI Labeler"}
+          </Badge>
+        </div>
+
+        <div className="space-y-2">
+          <Label htmlFor="userName">Username</Label>
+          <Input
             id="userName"
-            name="userName"
-            value={formData.userName}
-            onChange={handleChange}
-            className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
-            placeholder="Enter username"
-          />
-        </div>
-
-        <div>
-          <label
-            htmlFor="email"
-            className="block text-sm font-medium text-gray-700"
-          >
-            Email
-          </label>
-          <input
-            type="email"
-            id="email"
-            name="email"
-            value={formData.email}
-            onChange={handleChange}
-            className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
-            placeholder="Enter email"
-          />
-        </div>
-
-        <div>
-          <label
-            htmlFor="password"
-            className="block text-sm font-medium text-gray-700"
-          >
-            Password
-          </label>
-          <input
-            type="password"
-            id="password"
-            name="password"
-            value={formData.password}
-            onChange={handleChange}
-            className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
-            placeholder="Enter password"
-          />
-        </div>
-
-        <div>
-          <label
-            htmlFor="roleType"
-            className="block text-sm font-medium text-gray-700"
-          >
-            Role
-          </label>
-          <select
-            id="roleType"
-            name="roleType"
-            value={formData.roleType}
-            onChange={handleChange}
-            className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
-          >
-            <option value="AI_LABLER">AI Labeler</option>
-            <option value="HUMAN_LABELER">Human Labeler</option>
-          </select>
-        </div>
-
-        <div>
-          <label
-            htmlFor="ethereumAddress"
-            className="block text-sm font-medium text-gray-700"
-          >
-            Ethereum Address
-          </label>
-          <input
             type="text"
-            id="ethereumAddress"
-            name="ethereumAddress"
-            value={formData.ethereumAddress}
-            onChange={handleChange}
-            className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
-            placeholder="Enter Ethereum address"
+            value={formData.userName}
+            onChange={(e) => handleChange("userName", e.target.value)}
+            placeholder="Enter username"
+            className={cn(errors.userName && "border-red-500")}
           />
+          {errors.userName && (
+            <p className="text-sm text-red-500">{errors.userName}</p>
+          )}
         </div>
 
-        <button
+        <div className="space-y-2">
+          <Label htmlFor="email">Email</Label>
+          <Input
+            id="email"
+            type="email"
+            value={formData.email}
+            onChange={(e) => handleChange("email", e.target.value)}
+            placeholder="Enter email"
+            className={cn(errors.email && "border-red-500")}
+          />
+          {errors.email && (
+            <p className="text-sm text-red-500">{errors.email}</p>
+          )}
+        </div>
+
+        <div className="space-y-2">
+          <Label htmlFor="password">Password</Label>
+          <Input
+            id="password"
+            type="password"
+            value={formData.password}
+            onChange={(e) => handleChange("password", e.target.value)}
+            placeholder="Enter password"
+            className={cn(errors.password && "border-red-500")}
+          />
+          <PasswordStrengthMeter password={formData.password} />
+          {errors.password && (
+            <p className="text-sm text-red-500">{errors.password}</p>
+          )}
+        </div>
+
+        <div className="space-y-2">
+          <Label htmlFor="ethereumAddress">Ethereum Address</Label>
+          {isConnected ? (
+            <Input
+              id="ethereumAddress"
+              type="text"
+              value={formData.ethereumAddress}
+              disabled
+              className="bg-gray-50"
+            />
+          ) : (
+            <Button
+              type="button"
+              variant="outline"
+              className="w-full"
+              onClick={login}
+            >
+              Connect Wallet
+            </Button>
+          )}
+          {errors.ethereumAddress && (
+            <p className="text-sm text-red-500">{errors.ethereumAddress}</p>
+          )}
+        </div>
+
+        <div className="flex items-center space-x-2">
+          <Checkbox
+            id="terms"
+            checked={formData.acceptedTerms}
+            onCheckedChange={(checked: boolean) =>
+              handleChange("acceptedTerms", checked)
+            }
+          />
+          <Label htmlFor="terms" className="text-sm">
+            I accept the{" "}
+            <a
+              href="/terms"
+              className="text-primary hover:underline"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              terms of service
+            </a>
+          </Label>
+        </div>
+        {errors.acceptedTerms && (
+          <p className="text-sm text-red-500">{errors.acceptedTerms}</p>
+        )}
+
+        <Button
           type="submit"
-          disabled={isLoading}
-          className={`w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 ${
-            isLoading ? "opacity-50 cursor-not-allowed" : ""
-          }`}
+          className="w-full"
+          disabled={isLoading || !isConnected}
         >
-          {isLoading ? "Registering..." : "Register"}
-        </button>
+          {isLoading ? "Registering..." : "Complete Registration"}
+        </Button>
+
+        {!isConnected && (
+          <p className="text-sm text-center text-gray-500">
+            Please connect your wallet to complete registration
+          </p>
+        )}
       </form>
-    </div>
+    ),
+    [
+      formData,
+      errors,
+      isLoading,
+      isConnected,
+      defaultRole,
+      handleSubmit,
+      handleChange,
+      login,
+    ]
   );
+
+  if (isDialog) {
+    return (
+      <Dialog open={isOpen} onOpenChange={onClose}>
+        <DialogContent>{formContent}</DialogContent>
+      </Dialog>
+    );
+  }
+
+  return <Card className="w-full max-w-md mx-auto p-6">{formContent}</Card>;
 };
 
 export default RegistrationForm;
