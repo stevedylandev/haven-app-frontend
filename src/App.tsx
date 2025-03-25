@@ -1,7 +1,7 @@
 import { useRef, useState, useMemo, useEffect, Suspense } from "react";
 import { usePrivy } from "@privy-io/react-auth";
 import { WalletPromptModal } from "./components/auth/WalletPromptModal";
-import { Menu, History, RefreshCw } from "lucide-react";
+import { Menu, History } from "lucide-react";
 import { useAutoRegistration } from "./hooks/useAutoRegistration";
 import { BrowserRouter, Routes, Route, Link } from "react-router-dom";
 import { Providers } from "./components/providers/Providers";
@@ -49,33 +49,6 @@ const LoadingScreen = () => (
 );
 
 // Random clip fetching button component
-const RandomClipButton = () => {
-  const { videoClips, loading, error, fetchClips } = useRandomVideoClip();
-
-  useEffect(() => {
-    if (error) {
-      console.error("Failed to fetch random clips:", error);
-    }
-  }, [error]);
-
-  useEffect(() => {
-    if (videoClips.length > 0) {
-      console.log("Random clips fetched:", videoClips);
-    }
-  }, [videoClips]);
-
-  return (
-    <button
-      onClick={fetchClips}
-      disabled={loading}
-      className="px-4 py-2 bg-purple-600 hover:bg-purple-700 active:bg-purple-800 backdrop-blur-sm border border-white/20 rounded transition-all duration-200 focus:ring-2 focus:ring-purple-500 focus:outline-none flex items-center gap-2"
-      aria-label="Fetch random clip"
-    >
-      <RefreshCw className={`h-4 w-4 ${loading ? "animate-spin" : ""}`} />
-      <span>{loading ? "Loading..." : "Random Clip"}</span>
-    </button>
-  );
-};
 
 function AppContent() {
   const endPerformanceMeasure = usePerformanceMonitor("AppContent");
@@ -291,10 +264,10 @@ function AppContent() {
         />
         <span className="text-sm text-white font-medium">Menu</span>
       </button>
-
+      {/*
       <div className="fixed top-4 left-4 text-center text-white/60 text-sm max-sm:hidden">
         <RandomClipButton />
-      </div>
+      </div> */}
 
       <div
         className="sr-only"
