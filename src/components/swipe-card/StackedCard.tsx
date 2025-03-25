@@ -6,6 +6,7 @@ import { MediaDisplay } from "./MediaDisplay";
 import { BettingIndicator } from "./BettingIndicator";
 import { FloatingParticles } from "./FloatingParticles";
 import { InfoOverlay } from "./InfoOverlay";
+import { useVideoPreloader } from "../../hooks/useVideoPreloader";
 
 interface SwipeHandlers {
   onTouchStart: (e: React.TouchEvent | React.MouseEvent) => void;
@@ -35,6 +36,7 @@ interface StackedCardProps {
   onVideoLoad: () => void;
   reward: UserReward;
   handlers: SwipeHandlers;
+  preloader: ReturnType<typeof useVideoPreloader>;
 }
 
 export const StackedCard: React.FC<StackedCardProps> = ({
@@ -51,6 +53,7 @@ export const StackedCard: React.FC<StackedCardProps> = ({
   onVideoLoad,
   reward,
   handlers,
+  preloader,
 }) => {
   // Main spring animation for card positioning and stacking
   const springStyle = useSpring({
@@ -61,9 +64,9 @@ export const StackedCard: React.FC<StackedCardProps> = ({
       swipeDirection === "left" ? -500 : swipeDirection === "right" ? 500 : 0,
     opacity: isActive
       ? swipeDirection
-        ? 0 // Fade out when swiping
-        : 1 // Full opacity when not swiping
-      : Math.max(0.6 - index * 0.2, 0), // Stacked cards opacity
+        ? 0
+        : 1
+      : Math.max(0.6 - index * 0.2, 0),
     immediate: isExpanded,
     config: {
       tension: 500,
@@ -74,44 +77,53 @@ export const StackedCard: React.FC<StackedCardProps> = ({
   // Calculate derived values for drag interactions
   const dragScale = to([springStyle.x], (x) => {
     const progress = Math.abs(x) / 200;
-    return 1 - progress * 0.2; // Scale down to 0.8 at max drag
+    return 1 - progress * 0.2;
   });
 
   const dragOpacity = to([springStyle.x], (x) => {
     const progress = Math.abs(x) / 300;
-    return 1 - progress * 0.7; // Fade to 0.3 at max drag
+    return 1 - progress * 0.7;
   });
+
+  const activeHandlers = isActive
+    ? {
+        onTouchStart: handlers.onTouchStart,
+        onTouchMove: handlers.onTouchMove,
+        onTouchEnd: handlers.onTouchEnd,
+        onMouseDown: handlers.onMouseDown,
+        onMouseMove: handlers.onMouseMove,
+        onMouseUp: handlers.onMouseUp,
+        onMouseLeave: handlers.onMouseLeave,
+        onClick: handlers.onClick,
+      }
+    : {};
 
   return (
     <animated.div
-      style={
-        {
-          position: "absolute",
-          width: "100%",
-          height: "100%",
-          willChange: "transform",
-          transform: to(
-            [
-              springStyle.x,
-              springStyle.y,
-              springStyle.scale,
-              springStyle.translateX,
-            ],
-            (x, y, s, tx) => `translate3d(${x + tx}px, ${y}px, 0) scale(${s})`
-          ),
-          opacity: springStyle.opacity,
-        } as const
-      }
+      style={{
+        position: "absolute",
+        width: "100%",
+        height: "100%",
+        willChange: "transform",
+        transform: to(
+          [
+            springStyle.x,
+            springStyle.y,
+            springStyle.scale,
+            springStyle.translateX,
+          ],
+          (x, y, s, tx) => `translate3d(${x + tx}px, ${y}px, 0) scale(${s})`
+        ),
+        opacity: springStyle.opacity,
+      }}
     >
       <animated.div
-        style={
-          {
-            width: "100%",
-            height: "100%",
-            transform: to([dragScale], (s) => `scale(${isActive ? s : 1})`),
-            opacity: isActive ? dragOpacity : 1,
-          } as const
-        }
+        style={{
+          width: "100%",
+          height: "100%",
+          transform: to([dragScale], (s) => `scale(${isActive ? s : 1})`),
+          opacity: isActive ? dragOpacity : 1,
+        }}
       >
         <Card
           className={`relative w-full h-full border-none sm:rounded-xl backdrop-blur-[6px] bg-black/40 ${
@@ -126,18 +138,7 @@ export const StackedCard: React.FC<StackedCardProps> = ({
             background:
               "linear-gradient(135deg, rgba(255,255,255,0.1), rgba(255,255,255,0.05))",
           }}
-          {...(isActive
-            ? {
-                onTouchStart: handlers.onTouchStart,
-                onTouchMove: handlers.onTouchMove,
-                onTouchEnd: handlers.onTouchEnd,
-                onMouseDown: handlers.onMouseDown,
-                onMouseMove: handlers.onMouseMove,
-                onMouseUp: handlers.onMouseUp,
-                onMouseLeave: handlers.onMouseLeave,
-                onClick: handlers.onClick,
-              }
-            : {})}
+          {...activeHandlers}
         >
           <MediaDisplay
             content={content}
@@ -146,6 +147,7 @@ export const StackedCard: React.FC<StackedCardProps> = ({
             onExpand={onExpand}
             videoRef={videoRef}
             onVideoLoad={onVideoLoad}
+            preloader={preloader}
           />
 
           <InfoOverlay

@@ -5,6 +5,7 @@ import { ActionButtons } from "./swipe-card/ActionButtons";
 import { useSwipeGesture } from "../hooks/useSwipeGesture";
 import { useBetting } from "../hooks/useBetting";
 import { useVideoExpansion } from "../hooks/useVideoExpansion";
+import { useVideoPreloader } from "../hooks/useVideoPreloader";
 import { StackedCard } from "./swipe-card/StackedCard";
 import { WalletBlockModal } from "./auth/WalletBlockModal";
 import { useWalletPrompt } from "../hooks/useWalletPrompt";
@@ -49,15 +50,40 @@ export const SwipeCard = React.forwardRef<
     >(null);
     const [stackCards, setStackCards] = useState<Content[]>([]);
 
+    // Initialize video preloader
+    const preloader = useVideoPreloader({
+      maxCacheSize: 5,
+      preloadCount: 3, // Preload current + 2 stack cards
+    });
+
     // Combine disabled state with wallet block
     const isDisabled = disabled || walletState.blockNavigation;
 
-    // Initialize stack cards
+    // Initialize stack cards and start preloading
     useEffect(() => {
-      setStackCards([
+      const newStackCards = [
         { ...content, id: "stack-1" },
         { ...content, id: "stack-2" },
-      ]);
+      ];
+      setStackCards(newStackCards);
+
+      // Preload all videos in the stack
+      const allVideos = [content, ...newStackCards].filter(
+        (card) => card.type === "video"
+      );
+
+      console.log(
+        "[SwipeCard] Starting preload for",
+        allVideos.length,
+        "videos"
+      );
+      preloader.addToPreloadQueue(allVideos);
+
+      // Force preload the active card immediately
+      if (content.type === "video") {
+        console.log("[SwipeCard] Force preloading active card:", content.id);
+        preloader.forcePreload(content);
+      }
     }, [content.id]); // Reset stack when main content changes
 
     const {
@@ -103,7 +129,15 @@ export const SwipeCard = React.forwardRef<
         setStackCards((prevCards) => {
           const newCards = [...prevCards];
           newCards.pop(); // Remove last card
-          newCards.unshift({ ...content, id: `stack-${Date.now()}` }); // Add new card at bottom
+          const newCard = { ...content, id: `stack-${Date.now()}` };
+          newCards.unshift(newCard); // Add new card at bottom
+
+          // Start preloading the new card if it's a video
+          if (newCard.type === "video") {
+            console.log("[SwipeCard] Preloading new stack card:", newCard.id);
+            preloader.addToPreloadQueue([newCard]);
+          }
+
           return newCards;
         });
 
@@ -189,7 +223,9 @@ export const SwipeCard = React.forwardRef<
             key={stackContent.id}
             content={stackContent}
             isExpanded={isExpanded}
-            isVideoLoaded={false}
+            isVideoLoaded={
+              preloader.getPreloadedVideo(stackContent.id) !== null
+            }
             isHolding={false}
             betAmount={0}
             index={index + 1}
@@ -200,6 +236,7 @@ export const SwipeCard = React.forwardRef<
             onVideoLoad={handleVideoLoad}
             reward={reward}
             handlers={enhancedHandlers}
+            preloader={preloader}
           />
         ))}
 
@@ -218,6 +255,7 @@ export const SwipeCard = React.forwardRef<
           onVideoLoad={handleVideoLoad}
           reward={reward}
           handlers={enhancedHandlers}
+          preloader={preloader}
         />
 
         <BettingControls
