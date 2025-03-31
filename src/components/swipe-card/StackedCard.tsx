@@ -6,7 +6,6 @@ import { MediaDisplay } from "./MediaDisplay";
 import { BettingIndicator } from "./BettingIndicator";
 import { FloatingParticles } from "./FloatingParticles";
 import { InfoOverlay } from "./InfoOverlay";
-import { useVideoPreloader } from "../../hooks/useVideoPreloader";
 
 interface SwipeHandlers {
   onTouchStart: (e: React.TouchEvent | React.MouseEvent) => void;
@@ -14,7 +13,7 @@ interface SwipeHandlers {
   onTouchEnd: () => void;
   onMouseDown: (e: React.MouseEvent) => void;
   onMouseMove: (e: React.MouseEvent) => void;
-  onMouseUp: () => void;
+  onMouseUp: (e: React.MouseEvent) => void;
   onMouseLeave: () => void;
   onClick: (e: React.MouseEvent) => void;
   style?: {
@@ -36,7 +35,7 @@ interface StackedCardProps {
   onVideoLoad: () => void;
   reward: UserReward;
   handlers: SwipeHandlers;
-  preloader: ReturnType<typeof useVideoPreloader>;
+  isPrefetched?: boolean;
 }
 
 export const StackedCard: React.FC<StackedCardProps> = ({
@@ -53,7 +52,7 @@ export const StackedCard: React.FC<StackedCardProps> = ({
   onVideoLoad,
   reward,
   handlers,
-  preloader,
+  isPrefetched = false,
 }) => {
   // Main spring animation for card positioning and stacking
   const springStyle = useSpring({
@@ -147,7 +146,7 @@ export const StackedCard: React.FC<StackedCardProps> = ({
             onExpand={onExpand}
             videoRef={videoRef}
             onVideoLoad={onVideoLoad}
-            preloader={preloader}
+            isPrefetched={isPrefetched}
           />
 
           <InfoOverlay

@@ -1,4 +1,4 @@
-import { useRef, useState, useMemo, useEffect, Suspense } from "react";
+import { useRef, useState, useEffect, Suspense } from "react";
 import { usePrivy } from "@privy-io/react-auth";
 import { WalletPromptModal } from "./components/auth/WalletPromptModal";
 import { Menu, History } from "lucide-react";
@@ -18,14 +18,13 @@ import {
   LazyBettingTutorial,
   type SwipeCardPublicMethods,
 } from "./components/lazy";
-import { VerifyClips } from "./pages/VerifyClips";
 import RegisterPage from "./pages/Register";
 import BettingHistory from "./pages/BettingHistory";
 import PointsOverview from "./pages/PointsOverview";
 import { useOptimizedCallbacks } from "./hooks/useOptimizedCallbacks";
 import { usePerformanceMonitor } from "./utils/performance";
 import { useShakeDetection } from "./hooks/useShakeDetection";
-import { useRandomVideoClip } from "./hooks/useRandomVideoClip";
+import { usePrefetchedVideoContent } from "./hooks/usePrefetchedVideoContent";
 
 // Loading components
 const LoadingSpinner = () => (
@@ -55,17 +54,19 @@ function AppContent() {
 
   const {
     videoClips,
+    currentContent,
     loading: isLoading,
     error: errorMessage,
     fetchClips,
-  } = useRandomVideoClip();
+    advanceToNext,
+    isCurrentVideoPrefetched,
+  } = usePrefetchedVideoContent();
 
   // Fetch initial clips
   useEffect(() => {
     fetchClips();
   }, [fetchClips]);
 
-  const [currentIndex, setCurrentIndex] = useState(0);
   const [reward, setReward] = useState({
     points: 0,
     level: 1,
@@ -88,18 +89,13 @@ function AppContent() {
     handleRegistration,
   } = useAutoRegistration();
 
-  const currentContent = useMemo(
-    () => videoClips[currentIndex],
-    [videoClips, currentIndex]
-  );
-
   const { handleSwipe, handleSubmit, remainingClassifications } =
     useOptimizedCallbacks({
       videoContent: videoClips,
       currentContent,
       reward,
       swipeCardRef,
-      setCurrentIndex,
+      setCurrentIndex: advanceToNext,
       setReward,
       setShowWallet,
       resetShake,
@@ -233,6 +229,7 @@ function AppContent() {
               isWalletConnected={authenticated}
               onConnectWallet={login}
               isConnectingWallet={!ready}
+              isPrefetched={isCurrentVideoPrefetched}
             />
           )}
           {reward.classificationsCount >= 50 || shaken ? (
@@ -264,10 +261,6 @@ function AppContent() {
         />
         <span className="text-sm text-white font-medium">Menu</span>
       </button>
-      {/*
-      <div className="fixed top-4 left-4 text-center text-white/60 text-sm max-sm:hidden">
-        <RandomClipButton />
-      </div> */}
 
       <div
         className="sr-only"
@@ -358,14 +351,6 @@ function App() {
             element={
               <Suspense fallback={<LoadingSpinner />}>
                 <LazyDMCA />
-              </Suspense>
-            }
-          />
-          <Route
-            path="/verify"
-            element={
-              <Suspense fallback={<LoadingSpinner />}>
-                <VerifyClips />
               </Suspense>
             }
           />
