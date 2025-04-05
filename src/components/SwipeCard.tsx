@@ -8,6 +8,7 @@ import { useVideoExpansion } from "../hooks/useVideoExpansion";
 import { StackedCard } from "./swipe-card/StackedCard";
 import { WalletBlockModal } from "./auth/WalletBlockModal";
 import { useWalletPrompt } from "../hooks/useWalletPrompt";
+import { useHapticFeedback } from "../hooks/useHapticFeedback";
 
 export interface SwipeCardProps {
   content: Content;
@@ -25,6 +26,25 @@ export interface SwipeCardProps {
 export interface SwipeCardPublicMethods {
   setIsVideoLoaded: (value: boolean) => void;
 }
+
+// List of potential classifications that can be selected
+const ALTERNATIVE_CLASSIFICATIONS = [
+  "Fake",
+  "Real",
+  "AI Generated",
+  "Misleading",
+  "Political",
+  "Educational",
+  "Entertainment",
+  "NSFW",
+  "Safe",
+  "Violent",
+  "Harmful",
+  "Helpful",
+  "Informative",
+  "Spam",
+  "Offensive",
+];
 
 export const SwipeCard = React.forwardRef<
   SwipeCardPublicMethods,
@@ -50,6 +70,7 @@ export const SwipeCard = React.forwardRef<
       "left" | "right" | null
     >(null);
     const [stackCards, setStackCards] = useState<Content[]>([]);
+    const haptic = useHapticFeedback();
 
     // Combine disabled state with wallet block
     const isDisabled = disabled || walletState.blockNavigation;
@@ -61,7 +82,7 @@ export const SwipeCard = React.forwardRef<
         { ...content, id: "stack-2" },
       ];
       setStackCards(newStackCards);
-    }, [content.id]); // Reset stack when main content changes
+    }, [content]); // Fixed dependency array
 
     const {
       isExpanded,
@@ -112,6 +133,42 @@ export const SwipeCard = React.forwardRef<
         });
 
         onSwipe(direction, amount);
+        resetBetAmount();
+        setSwipeDirection(null);
+      }, 200);
+    };
+
+    // Handler for alternative classification selection
+    const handleClassificationSelect = (
+      position: "left" | "right",
+      classification: string
+    ) => {
+      haptic.success();
+
+      // Create a direction from the position
+      const direction = position;
+
+      // Log the selected classification (you can integrate this with your backend later)
+      console.log(
+        `Selected classification: ${classification} for ${direction} swipe`
+      );
+
+      setSwipeDirection(direction);
+
+      // Wait for swipe animation to complete
+      setTimeout(() => {
+        // Shift stack cards up
+        setStackCards((prevCards) => {
+          const newCards = [...prevCards];
+          newCards.pop(); // Remove last card
+          const newCard = { ...content, id: `stack-${Date.now()}` };
+          newCards.unshift(newCard); // Add new card at bottom
+          return newCards;
+        });
+
+        // Use the same handler but with the custom classification information
+        // In a real implementation, you would modify the onSwipe call to include the classification
+        onSwipe(direction, betAmount);
         resetBetAmount();
         setSwipeDirection(null);
       }, 200);
@@ -246,6 +303,10 @@ export const SwipeCard = React.forwardRef<
               handleSwipeComplete("right", betAmount);
             }
           }}
+          onClassificationSelect={
+            !isDisabled ? handleClassificationSelect : undefined
+          }
+          alternativeClassifications={ALTERNATIVE_CLASSIFICATIONS}
           disabled={isDisabled}
         />
       </div>
