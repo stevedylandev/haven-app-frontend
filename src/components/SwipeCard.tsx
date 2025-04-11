@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { Content, ActionChoice, UserReward } from "../types";
+import { Content, ActionChoice, UserReward, Action } from "../types";
 import { BettingControls } from "./swipe-card/BettingControls";
 import { ActionButtons } from "./swipe-card/ActionButtons";
 import { useSwipeGesture } from "../hooks/useSwipeGesture";
@@ -9,6 +9,7 @@ import { StackedCard } from "./swipe-card/StackedCard";
 import { WalletBlockModal } from "./auth/WalletBlockModal";
 import { useWalletPrompt } from "../hooks/useWalletPrompt";
 import { useHapticFeedback } from "../hooks/useHapticFeedback";
+import { getClassificationPickerOptions } from "@/utils/api";
 
 export interface SwipeCardProps {
   content: Content;
@@ -26,25 +27,6 @@ export interface SwipeCardProps {
 export interface SwipeCardPublicMethods {
   setIsVideoLoaded: (value: boolean) => void;
 }
-
-// List of potential classifications that can be selected
-const ALTERNATIVE_CLASSIFICATIONS = [
-  "Fake",
-  "Real",
-  "AI Generated",
-  "Misleading",
-  "Political",
-  "Educational",
-  "Entertainment",
-  "NSFW",
-  "Safe",
-  "Violent",
-  "Harmful",
-  "Helpful",
-  "Informative",
-  "Spam",
-  "Offensive",
-];
 
 export const SwipeCard = React.forwardRef<
   SwipeCardPublicMethods,
@@ -84,6 +66,27 @@ export const SwipeCard = React.forwardRef<
       setStackCards(newStackCards);
     }, [content]); // Fixed dependency array
 
+    const [alternativeClassifications, setAlternativeClassifications] =
+      useState<Action[] | null>(null);
+
+    console.log("Alternative Classifications:", alternativeClassifications);
+
+    useEffect(() => {
+      const fetchAlternativeClassifications = async () => {
+        try {
+          const response = await getClassificationPickerOptions();
+          console.log("Response:", response);
+          if (response?.data) {
+            setAlternativeClassifications(response.data);
+            console.log("Fetched classifications:", response.data);
+          }
+        } catch (error) {
+          console.error("Error fetching alternative classifications:", error);
+        }
+      };
+
+      fetchAlternativeClassifications();
+    }, []);
     const {
       isExpanded,
       isVideoLoaded,
@@ -306,7 +309,7 @@ export const SwipeCard = React.forwardRef<
           onClassificationSelect={
             !isDisabled ? handleClassificationSelect : undefined
           }
-          alternativeClassifications={ALTERNATIVE_CLASSIFICATIONS}
+          alternativeClassifications={alternativeClassifications || []}
           disabled={isDisabled}
         />
       </div>

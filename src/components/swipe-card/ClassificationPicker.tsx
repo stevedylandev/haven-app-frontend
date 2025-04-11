@@ -1,12 +1,13 @@
 import React, { useEffect, useState } from "react";
 import Picker from "react-mobile-picker";
 import { X } from "lucide-react";
+import { Action } from "@/types";
 
 interface ClassificationPickerProps {
   isOpen: boolean;
   onClose: () => void;
   initialValue: string;
-  options: string[];
+  options: Action[];
   onSelect: (value: string) => void;
   position: "left" | "right";
 }
@@ -37,6 +38,19 @@ export const ClassificationPicker: React.FC<ClassificationPickerProps> = ({
 
   if (!isOpen) return null;
 
+  // Create a fallback if options is not an array or empty
+  const displayOptions =
+    Array.isArray(options) && options.length > 0
+      ? options
+      : [
+          {
+            action_id: 0,
+            action_name: initialValue,
+            description: null,
+            created_at: new Date().toISOString(),
+          },
+        ];
+
   return (
     <div
       className={`fixed inset-0 z-50 flex items-end justify-center bg-black/50 backdrop-blur-sm transition-opacity duration-300 ${
@@ -51,7 +65,10 @@ export const ClassificationPicker: React.FC<ClassificationPickerProps> = ({
         onClick={(e) => e.stopPropagation()}
       >
         <div className="flex justify-between items-center p-4 border-b border-gray-700/50">
-          <h2 className="text-white font-medium">Alternative Classifications</h2>
+          <h2 className="text-white font-medium">
+            Alternative Classifications{" "}
+            {options.length > 0 ? `(${options.length})` : "(No options)"}
+          </h2>
           <button
             onClick={onClose}
             className="text-gray-400 hover:text-white rounded-full p-1"
@@ -73,11 +90,20 @@ export const ClassificationPicker: React.FC<ClassificationPickerProps> = ({
                     wheelMode="natural"
                   >
                     <Picker.Column name="classification">
-                      {options.map((option) => (
-                        <Picker.Item key={option} value={option}>
+                      {displayOptions.map((option) => (
+                        <Picker.Item
+                          key={option.action_id}
+                          value={option.action_name}
+                        >
                           {({ selected }) => (
-                            <div className={`py-2 px-4 ${selected ? 'font-bold text-white' : 'text-gray-400'}`}>
-                              {option}
+                            <div
+                              className={`py-2 px-4 ${
+                                selected
+                                  ? "font-bold text-white"
+                                  : "text-gray-400"
+                              }`}
+                            >
+                              {option.action_name}
                             </div>
                           )}
                         </Picker.Item>

@@ -5,6 +5,7 @@ import {
   UserProfile,
   PointsHistory,
   ContributionHistory,
+  Action,
 } from "../types";
 
 console.log("Initializing API with base URL");
@@ -163,4 +164,27 @@ export async function registerUser(
   }
 
   return data;
+}
+
+export async function getClassificationPickerOptions(): Promise<
+  ApiResponse<Action[]>
+> {
+  try {
+    const response = await fetch(`${API_BASE_URL}/actions/random?limit=10`, {
+      method: "GET",
+      headers: {
+        Accept: "application/json",
+      },
+      mode: "cors",
+    });
+    const data = await response.json();
+
+    if (data.HttpCode !== 200) {
+      throw new Error(data.message);
+    }
+    return data;
+  } catch (error) {
+    console.error("Error fetching classification picker options:", error);
+    throw new Error("Failed to fetch classification picker options");
+  }
 }

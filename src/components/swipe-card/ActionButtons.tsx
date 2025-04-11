@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { ChevronLeft, ChevronRight } from "lucide-react";
-import { ActionChoice } from "../../types";
+import { Action, ActionChoice } from "../../types";
 import { Button } from "@/components/ui/button";
 import { useLongPress } from "../../hooks/useLongPress";
 import { ClassificationPicker } from "./ClassificationPicker";
@@ -15,7 +15,7 @@ interface ActionButtonsProps {
     classification: string
   ) => void;
   disabled?: boolean;
-  alternativeClassifications?: string[];
+  alternativeClassifications: Action[];
 }
 
 export const ActionButtons: React.FC<ActionButtonsProps> = ({
@@ -25,16 +25,14 @@ export const ActionButtons: React.FC<ActionButtonsProps> = ({
   onRightClick,
   onClassificationSelect,
   disabled,
-  alternativeClassifications = [],
+  alternativeClassifications,
 }) => {
   const [pickerOpen, setPickerOpen] = useState<"left" | "right" | null>(null);
 
-  // If no alternative classifications provided, use the default actions
-  const classificationOptions =
-    alternativeClassifications.length > 0
-      ? alternativeClassifications
-      : [leftAction.label, rightAction.label];
-
+  console.log(
+    "Alternative Classifications in actions",
+    alternativeClassifications
+  );
   const leftLongPressHandlers = useLongPress({
     onClick: onLeftClick,
     onLongPress: () => setPickerOpen("left"),
@@ -103,7 +101,7 @@ export const ActionButtons: React.FC<ActionButtonsProps> = ({
         initialValue={
           pickerOpen === "left" ? leftAction.label : rightAction.label
         }
-        options={classificationOptions}
+        options={alternativeClassifications}
         onSelect={handleClassificationSelect}
         position={pickerOpen || "left"}
       />

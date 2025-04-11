@@ -118,3 +118,16 @@ export interface UserProfile {
   totalContributions: number;
   createdAt: string;
 }
+
+export interface Action {
+  action_id: number;
+  action_name: string;
+  description: string | null;
+  created_at: string; // ISO date string
+}
+
+export interface PickerActionsResponse {
+  HttpCode: number;
+  message: string;
+  data: Action[];
+}
