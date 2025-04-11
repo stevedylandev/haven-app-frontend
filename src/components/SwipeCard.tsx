@@ -189,6 +189,8 @@ export const SwipeCard = React.forwardRef<
       ...handlers,
       onMouseDown: (e: React.MouseEvent) => {
         if (!isExpanded && !isDisabled) {
+          // Prevent triggering multiple times in quick succession
+          e.preventDefault();
           startIncrementing();
         }
         handlers.onMouseDown(e);
@@ -209,6 +211,7 @@ export const SwipeCard = React.forwardRef<
         e: React.TouchEvent<Element> | React.MouseEvent<Element>
       ) => {
         if (!isExpanded && !isDisabled && "touches" in e) {
+          // Add passive handling for better mobile performance
           startIncrementing();
         }
         handlers.onTouchStart?.(e);
@@ -218,6 +221,11 @@ export const SwipeCard = React.forwardRef<
           stopIncrementing();
         }
         handlers.onTouchEnd();
+      },
+      onTouchCancel: () => {
+        if (!isExpanded) {
+          stopIncrementing();
+        }
       },
       onMouseMove: (e: React.MouseEvent) => {
         if ("touches" in e) return;
