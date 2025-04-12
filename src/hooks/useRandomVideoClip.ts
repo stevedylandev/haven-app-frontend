@@ -12,8 +12,10 @@ export function useRandomVideoClip() {
     url: `https://premium.w3ipfs.storage/ipfs/${clip.ipfs_cid}`,
     type: "video",
     pointsValue: clip.points_value,
-    leftActionId: clip.clip_action,
-    rightActionId: clip.random_action,
+    leftActionId: clip.clip_action_id,
+    leftActionName: clip.clip_action,
+    rightActionId: clip.random_action_id,
+    rightActionName: clip.random_action,
   });
 
   const fetchClips = useCallback(async () => {
