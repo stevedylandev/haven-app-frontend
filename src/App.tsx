@@ -216,12 +216,12 @@ function AppContent() {
               ref={swipeCardRef}
               content={currentContent}
               leftAction={{
-                id: "lt",
-                label: currentContent.leftActionId || "",
+                id: currentContent.rightActionId,
+                label: currentContent.leftActionName || "",
               }}
               rightAction={{
-                id: "rt",
-                label: currentContent.rightActionId || "",
+                id: currentContent.rightActionId,
+                label: currentContent.rightActionName || "",
               }}
               onSwipe={handleSwipe}
               reward={reward}
